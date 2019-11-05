@@ -1,6 +1,9 @@
 import pygame
 from pygame.locals import *
-from scenes.main_menu import MainMenuScene
+from scenes.main_menu_scene import MainMenuScene
+from scenes.game_scene import GameScene
+from utility.constants import Constants
+from utility.assets import Assets
 
 class App:
     TITLE = "Craft 112"
@@ -19,13 +22,15 @@ class App:
                     (self.width, self.height),
                     pygame.HWSURFACE | pygame.DOUBLEBUF)
         pygame.display.set_caption(App.TITLE)
+        Assets.loadAssets()
         self.initializeScenes()
         self.changeScene("main")
         self.running = True
 
     def initializeScenes(self):
         self.scenes = {
-            "main": MainMenuScene(self)
+            "main": MainMenuScene(self),
+            "game": GameScene(self)
         }
 
     def changeScene(self, sceneName):
@@ -34,11 +39,11 @@ class App:
     def onEvent(self, event):
         if event.type == pygame.QUIT:
             self.running = False
-        if event.type == pygame.KEYDOWN:
-            self.activeScene.onKeyPress(pygame.key.name(event.key), event.mod)
         if event.type == pygame.MOUSEBUTTONDOWN:
             self.activeScene.onMouseClick(event.pos)
-        # TODO: handle mouse click
+
+    def onKeyPress(self, keys, mods):
+        self.activeScene.onKeyPress(keys, mods)
  
     def onDraw(self):
         if self.activeScene is not None:
@@ -48,11 +53,17 @@ class App:
         self.initialize()
         while self.running:
             self.window.fill((255, 255, 255))
+
+            keys = pygame.key.get_pressed()
+            mods = pygame.key.get_mods()
+            self.onKeyPress(keys, mods)
+
             for event in pygame.event.get():
                 self.onEvent(event)
+
             self.onDraw()
             pygame.display.update()
-            self.clock.tick(15)
+            self.clock.tick(Constants.FPS)
         pygame.quit()
 
     def quit(self):

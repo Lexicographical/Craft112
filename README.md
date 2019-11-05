@@ -2,6 +2,5 @@
 
 A Terraria-inspired adventure game for CMU 15-112 F2019
 
-Install
+## Requirements
 pygame
-(cython and sdl2?)

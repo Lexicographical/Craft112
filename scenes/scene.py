@@ -1,3 +1,5 @@
+import pygame
+
 class Scene:
     def __init__(self, app):
         self.app = app
@@ -14,8 +16,9 @@ class Scene:
         for component in self.components:
             component.draw()
 
-    def onKeyPress(self, key, modifier):
-        pass
+    def onKeyPress(self, keys, mods):
+        if keys[pygame.K_q] and (mods & pygame.KMOD_CTRL):
+            self.app.quit()
 
     def onMouseClick(self, mousePos):
         pass

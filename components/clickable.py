@@ -1,6 +1,7 @@
+import pygame
 from components.label import Label
 from utility.constants import Constants
-import pygame
+
 
 class Clickable():
     def __init__(self, x, y, width=Constants.DEFAULT_WIDTH,

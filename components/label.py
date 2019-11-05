@@ -1,6 +1,7 @@
+import pygame
 from components.component import Component
 from utility.constants import Constants
-import pygame
+
 
 class Label(Component):
     def __init__(self, window, x, y, text, font, color=Constants.TEXT_COLOR,

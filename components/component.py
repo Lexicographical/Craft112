@@ -1,6 +1,6 @@
+import uuid
 import pygame
 from utility.constants import Constants
-import uuid
 
 class Component:
     def __init__(self, window, x, y, width=Constants.DEFAULT_WIDTH,
@@ -37,5 +37,3 @@ class Component:
 
     def __hash__(self):
         return hash((self.x, self.y, self.width, self.height, self.uuid))
-
-        
