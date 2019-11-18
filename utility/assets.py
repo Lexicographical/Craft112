@@ -1,4 +1,6 @@
 import pygame
+from utility.constants import Constants
+from game.world.block import Blocks
 
 class Assets:
     assets = {}
@@ -7,20 +9,29 @@ class Assets:
     def loadAssets():
         assets = {}
         assets["spriteLeft"] = [
-            Assets.loadImage("images", f"L{i}.png")
+            Assets.loadImage(f"L{i}.png")
             for i in range(1, 10)
         ]
         assets["spriteRight"] = [
-            Assets.loadImage("images", f"R{i}.png")
+            Assets.loadImage(f"R{i}.png")
             for i in range(1, 10)
         ]
-        assets["sprite"] = Assets.loadImage("images", "standing.png")
+        Constants.SPRITE_COUNT = len(assets["spriteLeft"])
+        assets["sprite"] = Assets.loadImage("standing.png")
+        assets["background"] = Assets.loadImage("background.jpg", transparent=False)
+
+        assets["blocks"] = [
+            Assets.loadImage(f"block_{i}.png", folder="blocks")
+            for i in range(len(Blocks))
+        ]
 
         Assets.assets = assets
 
     @staticmethod
-    def loadImage(folder, file, transparent=True):
-        path = f"assets/{folder}/{file}"
+    def loadImage(file, folder="", transparent=True):
+        if folder != "":
+            folder += "/"
+        path = f"assets/images/{folder}{file}"
         if transparent:
             return pygame.image.load(path).convert_alpha()
         else:

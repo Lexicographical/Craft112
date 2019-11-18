@@ -2,6 +2,7 @@ import uuid
 import pygame
 from utility.constants import Constants
 
+# Top level class for UI components
 class Component:
     def __init__(self, window, x, y, width=Constants.DEFAULT_WIDTH,
             height=Constants.DEFAULT_HEIGHT,

@@ -2,7 +2,8 @@ import pygame
 from components.component import Component
 from utility.constants import Constants
 
-
+# Text label UI component
+# TODO: add anchor support
 class Label(Component):
     def __init__(self, window, x, y, text, font, color=Constants.TEXT_COLOR,
                  background=None):
@@ -11,6 +12,11 @@ class Label(Component):
         self.font = font
         self.color = color
         self.background = background
+        self.label = self.font.render(self.text, True, self.color,
+                                      self.background)
+
+    def setText(self, text):
+        self.text = text
         self.label = self.font.render(self.text, True, self.color,
                                       self.background)
 

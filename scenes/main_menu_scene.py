@@ -6,9 +6,8 @@ from scenes.scene import Scene
 from utility.colors import Colors
 from utility.fonts import Fonts
 
-# TODO: group components into batch and draw together
 # TODO: use pygame mixer to play sounds: https://www.pygame.org/docs/ref/mixer.html
-
+# Scene to display the main menu
 class MainMenuScene(Scene):
     def __init__(self, app):
         super().__init__(app)
@@ -25,6 +24,7 @@ class MainMenuScene(Scene):
                             font=textFont, text="Start Game",
                             padding=10)
         startGame.setOnClickListener(lambda: self.app.changeScene("game"))
+        
         quitGame = Button(window, width/2, 2*height/3,
                             font=textFont, text="Quit Game",
                             padding=10)

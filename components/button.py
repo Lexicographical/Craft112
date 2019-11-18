@@ -3,8 +3,7 @@ from components.component import Component
 from components.label import Label
 from utility.constants import Constants
 
-# TODO: blit label onto button surface instead of window
-
+# Button UI component
 class Button(Clickable, Component):
     def __init__(self, window, x, y,
                  width=Constants.DEFAULT_WIDTH,

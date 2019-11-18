@@ -1,5 +1,6 @@
 import pygame
 
+# Top-level class for scenes in the game
 class Scene:
     def __init__(self, app):
         self.app = app

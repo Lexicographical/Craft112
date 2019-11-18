@@ -2,7 +2,7 @@ import pygame
 from components.label import Label
 from utility.constants import Constants
 
-
+# Top level class for clickable components. Not an actual component on its own
 class Clickable():
     def __init__(self, x, y, width=Constants.DEFAULT_WIDTH,
                  height=Constants.DEFAULT_WIDTH):
