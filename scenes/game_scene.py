@@ -42,7 +42,7 @@ class GameScene(Scene):
 # or change code
     def drawComponents(self):
         self.drawBackground()
-        self.drawWorld()
+        self.drawTerrain()
         self.drawPlayer()
 
         super().drawComponents()
@@ -58,22 +58,22 @@ class GameScene(Scene):
 
     # TODO: preview positioning is not working properly
     # blocks are not in the right position. fix
-    def drawWorld(self):
+    def drawTerrain(self):
         world = self.world
         height, width = self.previewHeight, self.previewWidth
         player = self.player
         px, py = player.position
-        offset = 5 # load outside canvas to make buffering less evident
-        # print(-py-height, -py+height+offset)
+        offset = 5 # load outside canvas to hide buffering
+        renderOffset = 7
         for y in range(-height-offset, height+offset):
             for x in range(-width-offset, width+offset):
-                bx = x + px
-                by = y - py
+                bx = px + x
+                by = py - y
                 block = world.getBlock((bx, by))
 
                 size = self.blockSize
                 renderX = (x+width - (abs(px)%1)) * size
-                renderY = (y+height - (abs(py)%1)) * size
+                renderY = (y+height-renderOffset - (abs(py)%1)) * size
                 self.drawBlock(block, (renderX, renderY))
 
     def drawBlock(self, block, position):
@@ -90,29 +90,10 @@ class GameScene(Scene):
     def drawPlayer(self):
         window = self.app.window
         cx, cy = self.app.width / 2, self.app.height / 2
-        assets = Assets.assets
         player = self.player
+        player.draw(window, cx, cy)
 
         self.label.setText(player.getPosition())
-
-        # create rect for sprite location
-        width, height = assets["sprite"].get_size()
-        spriteRect = pygame.Rect(0, 0, width, height)
-        spriteRect.center = (cx, cy)
-
-        # animate sprite walk every other WALK_FACTOR ticks
-        spriteIndex = player.walkTick // Constants.WALK_FACTOR
-        if player.left:
-            window.blit(assets["spriteLeft"][spriteIndex], spriteRect)
-        elif player.right:
-            window.blit(assets["spriteRight"][spriteIndex], spriteRect)
-        else:
-            window.blit(assets["sprite"], spriteRect)
-        player.walkTick += 1
-
-        spriteCount = Constants.SPRITE_COUNT
-        if player.walkTick >= spriteCount * Constants.WALK_FACTOR:
-            player.walkTick = 0
 
     def onKeyPress(self, keys, mods):
         super().onKeyPress(keys, mods)

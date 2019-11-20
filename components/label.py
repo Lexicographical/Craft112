@@ -8,6 +8,7 @@ class Label(Component):
     def __init__(self, window, x, y, text, font, color=Constants.TEXT_COLOR,
                  background=None):
         super().__init__(window, x, y)
+        self.type = "Label"
         self.text = text
         self.font = font
         self.color = color

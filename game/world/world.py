@@ -1,5 +1,6 @@
 import random
-from game.world.block import *
+from game.world.block import Block
+from game.world.material import Material
 from utility.constants import Constants
 
 # TODO: handle world gen. start with superflat
@@ -21,7 +22,9 @@ class World:
             self.blocks.append([])
             for i in range(self.width):
                 x, y = self.indexToCoordinate((i, j))
-                blockType = Blocks.DIRT
+                blockType = Material.DIRT
+                if y > 0:
+                    blockType = Material.AIR
                 self.blocks[j].append(Block(blockType, x, y))
         print("World Size:", len(self.blocks), len(self.blocks[0]))
 

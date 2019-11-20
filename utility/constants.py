@@ -1,4 +1,6 @@
-from game.world.block import Block, Blocks
+from game.world.block import Block
+from game.world.material import Material
+from game.world.item import ItemStack
 
 class Constants:
     WORLD_HEIGHT = 101
@@ -13,4 +15,8 @@ class Constants:
     WALK_FACTOR = 3
     JUMP_FACTOR = 0.1
 
-    AIR_BLOCK = Block(Blocks.AIR, 0, 0)
+    AIR_BLOCK = Block(Material.AIR, 0, 0)
+    EMPTY_ITEM = ItemStack(Material.AIR, 1)
+
+    INVENTORY_WIDTH = 9
+    INVENTORY_HEIGHT = 5

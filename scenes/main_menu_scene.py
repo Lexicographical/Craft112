@@ -34,6 +34,8 @@ class MainMenuScene(Scene):
 
     def onKeyPress(self, keys, mods):
         super().onKeyPress(keys, mods)
+        if keys[pygame.K_RETURN]:
+            self.app.changeScene("game")
 
     def onMouseClick(self, mousePos):
         for component in self.components:

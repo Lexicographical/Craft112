@@ -1,6 +1,6 @@
 import pygame
 from utility.constants import Constants
-from game.world.block import Blocks
+from game.world.material import Material
 
 class Assets:
     assets = {}
@@ -21,9 +21,10 @@ class Assets:
         assets["background"] = Assets.loadImage("background.jpg", transparent=False)
 
         assets["blocks"] = [
-            Assets.loadImage(f"block_{i}.png", folder="blocks")
-            for i in range(len(Blocks))
+            Assets.loadImage(f"block_{i}.png", folder="blocks", transparent=False)
+            for i in range(len(Material))
         ]
+        assets["blocks"][0] = Assets.loadImage("block_0.png", folder="blocks")
 
         Assets.assets = assets
 

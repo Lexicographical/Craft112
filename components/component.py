@@ -37,4 +37,4 @@ class Component:
         return rect
 
     def __hash__(self):
-        return hash((self.x, self.y, self.width, self.height, self.uuid))
+        return hash(self.uuid)
