@@ -22,7 +22,9 @@ class GameScene(Scene):
         self.world = World()
         self.world.generateWorld()
         self.player = Player()
-        self.player.position = [0, 0]
+        y = self.world.getHighestBlock(0)
+        print("Highest block", y)
+        self.player.position = [0, y]
 
         self.previewWidth = 10
         self.blockSize = self.app.width / (self.previewWidth * 2 + 1)
@@ -78,7 +80,7 @@ class GameScene(Scene):
 
     def drawBlock(self, block, position):
         window = self.app.window
-        texture = Assets.assets["blocks"][block.getId()]
+        texture = Assets.assets["blocks"][block.getType().value]
         
         x, y = position
         size = self.blockSize

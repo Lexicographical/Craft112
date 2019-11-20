@@ -19,8 +19,7 @@ class App:
     def initialize(self):
         pygame.init()
         self.window = pygame.display.set_mode(
-                    (self.width, self.height),
-                    pygame.HWSURFACE | pygame.DOUBLEBUF)
+                    (self.width, self.height))
         pygame.display.set_caption(App.TITLE)
         Assets.loadAssets()
         self.initializeScenes()

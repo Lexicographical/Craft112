@@ -7,5 +7,5 @@ class Block:
         self.x = x
         self.y = y
 
-    def getId(self):
-        return self.material.value
+    def getType(self):
+        return self.material
