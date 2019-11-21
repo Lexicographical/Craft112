@@ -15,6 +15,7 @@ class Constants:
     SPRITE_COUNT = -1
     WALK_FACTOR = 3
     JUMP_FACTOR = 0.2
+    GRAVITY = 0.2
 
     AIR_BLOCK = Block(Material.AIR, 0, 0)
     EMPTY_ITEM = ItemStack(Material.AIR, 1)

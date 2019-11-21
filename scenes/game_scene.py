@@ -21,7 +21,7 @@ class GameScene(Scene):
     def initGame(self):
         self.world = World()
         self.world.generateWorld()
-        self.player = Player()
+        self.player = Player(self.world)
         y = self.world.getHighestBlock(0)
         print("Highest block", y)
         self.player.position = [0, y]
@@ -109,6 +109,8 @@ class GameScene(Scene):
             player.move(0, 1)
         elif keys[pygame.K_s]:
             player.move(0, -1)
+        elif keys[pygame.K_ESCAPE]:
+            self.togglePause()
         else:
             player.faceDirection(0, 0)
 
@@ -122,3 +124,6 @@ class GameScene(Scene):
             if (isinstance(component, Clickable) and 
                 component.isClicked(mousePos)):
                 component.click()
+
+    def togglePause(self):
+        pass

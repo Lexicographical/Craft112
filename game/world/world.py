@@ -29,6 +29,7 @@ class World:
 
     def generateWorld(self):
         elevation = self.generateElevations()
+        # elevation = [0]*self.width
         for j in range(self.height):
             self.blocks.append([])
             for i in range(self.width):
@@ -48,7 +49,7 @@ class World:
         return (i - self.wOffset, j - self.hOffset)
     
     def coordinateToIndex(self, coordinate):
-        x, y = coordinate
+        x, y = [int(i) for i in coordinate]
         return (x + self.wOffset, y + self.hOffset)
     
     def setBlock(self, blockType, coordinate):
@@ -63,10 +64,11 @@ class World:
         return block
 
     def getHighestBlock(self, x):
-        for j in range(self.height):
-            if self.blocks[j][x].getType() == Material.AIR:
+        x, _ = self.coordinateToIndex((x, 0))
+        for j in range(self.height-1, -1, -1):
+            if self.blocks[j][x].getType() != Material.AIR:
                 _, y = self.indexToCoordinate((0, j))
-                return y
+                return y+1
         print("Max reached")
         _, y = self.indexToCoordinate((0, self.height))
         return y

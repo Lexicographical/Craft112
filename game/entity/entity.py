@@ -1,16 +1,19 @@
 import pygame
 from enum import Enum
+from game.world.material import Material
 from utility.constants import Constants
 from utility.assets import Assets
 import uuid
+import math
 
 # Top level class for game entities
 class Entity(pygame.sprite.Sprite):
-    def __init__(self, type, health, sprite, spriteLeft, spriteRight):
+    def __init__(self, type, world, health, sprite, spriteLeft, spriteRight):
         super().__init__()
         self.type = type
         self.position = [0, 0]
         self.health = health
+        self.world = world
 
         self.sprite = Assets.assets[sprite]
         self.spriteLeft = Assets.assets[spriteLeft]
@@ -20,6 +23,8 @@ class Entity(pygame.sprite.Sprite):
         self.isLeft = False
         self.isRight = False
         self.isJumping = False
+
+        self.velocY = 0
 
         self.jumpTick = 10
         self.walkTick = 0
@@ -40,6 +45,8 @@ class Entity(pygame.sprite.Sprite):
             self.isLeft = False
             self.isRight = False
 
+    # TODO: make movement in terms of velocity
+    # cancel velocity if collision occurs
     def move(self, dx, dy, walk=False):
         self.position[0] += round(dx*0.25, 2)
         self.position[1] += round(dy*0.25, 2)
@@ -48,20 +55,45 @@ class Entity(pygame.sprite.Sprite):
             self.faceDirection(dx, dy)
 
     def jump(self):
-        self.faceDirection(0, 0)
+        self.velocY += Constants.GRAVITY
         self.isJumping = True
-        self.walkTick = 0
 
     def update(self):
-        if self.isJumping:
-            if self.jumpTick >= -10:
-                sign = -1 if self.jumpTick < 0 else 1
-                dy = abs(self.jumpTick) * Constants.JUMP_FACTOR * sign
-                self.move(0, dy)
-                self.jumpTick -= 1
-            else:
-                self.isJumping = False
-                self.jumpTick = 10
+        self.fall()
+        world = self.world
+        if self.velocY != 0:
+            sign = -1 if self.velocY < 0 else 1
+            for _ in range(int(abs(self.velocY))):
+                self.position[1] += sign
+                x, y = self.position
+                block = world.getBlock((x, y))
+                if block.getType() != Material.AIR:
+                    self.velocY = 0
+                    self.position[1] -= sign
+                    self.isJumping = False
+                    break
+        else:
+            x, y = self.position
+            block = world.getBlock((x, y))
+            if block.getType() != Material.AIR:
+                self.position[1] += 1
+            
+        # if self.isJumping:
+        #     if self.jumpTick >= -10:
+        #         sign = -1 if self.jumpTick < 0 else 1
+        #         dy = abs(self.jumpTick) * Constants.JUMP_FACTOR * sign
+        #         self.move(0, dy)
+        #         self.jumpTick -= 1
+        #     else:
+        #         self.isJumping = False
+        #         self.jumpTick = 10
+    
+    def fall(self):
+        x, y = self.position
+        world = self.world
+        block = world.getBlock((x, y-1))
+        if block.getType() == Material.AIR:
+            self.velocY -= Constants.GRAVITY
 
     def getPosition(self):
         return "(%.2f, %.2f)" % (self.position[0], self.position[1])
@@ -70,7 +102,7 @@ class Entity(pygame.sprite.Sprite):
         # create rect for sprite location
         width, height = self.sprite.get_size()
         spriteRect = pygame.Rect(0, 0, width, height)
-        spriteRect.center = (x, y)
+        spriteRect.center = (x, y+height/4)
 
         # animate sprite walk every other WALK_FACTOR ticks
         spriteIndex = self.walkTick // Constants.WALK_FACTOR
