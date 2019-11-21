@@ -55,7 +55,7 @@ class Entity(pygame.sprite.Sprite):
             self.faceDirection(dx, dy)
 
     def jump(self):
-        self.velocY += Constants.GRAVITY
+        self.velocY += Constants.GRAVITY*2
         self.isJumping = True
 
     def update(self):

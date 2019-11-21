@@ -16,10 +16,15 @@ class Component:
         self.fillColor = fillColor
         self.borderColor = borderColor
         self.borderWidth = borderWidth
+        self.isEnabled = True
 
         self.uuid = uuid.uuid4()
+
+    def setEnabled(self, enabled):
+        self.isEnabled = enabled
     
     def draw(self):
+        if not self.isEnabled: return
         rect = self.getBoundingRect()
         if self.fillColor is not None:
             pygame.draw.rect(self.window, self.fillColor, rect)

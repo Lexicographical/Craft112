@@ -1,4 +1,5 @@
 import pygame
+from components.component import Component
 
 # Top-level class for scenes in the game
 class Scene:
@@ -11,7 +12,12 @@ class Scene:
 
     def addComponents(self, components):
         for component in components:
-            self.addComponent(component)
+            assert(isinstance(component, Component))
+            self.components.add(component)
+
+    def removeComponent(self, component):
+        if component in self.components:
+            self.components.remove(component)
 
     def drawComponents(self):
         for component in self.components:

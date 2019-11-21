@@ -30,6 +30,7 @@ class Button(Clickable, Component):
             self.height += 2*padding
 
     def draw(self):
+        if not self.isEnabled: return
         super().draw()
         if self.label is not None:
             self.label.draw()

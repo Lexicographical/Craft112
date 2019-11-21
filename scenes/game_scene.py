@@ -10,6 +10,7 @@ from utility.assets import Assets
 from utility.colors import Colors
 from utility.constants import Constants
 from utility.fonts import Fonts
+from pygame.color import Color
 
 # Scene to display the gameplay
 class GameScene(Scene):
@@ -17,6 +18,8 @@ class GameScene(Scene):
         super().__init__(app)
         self.initGame()
         self.initComponents()
+
+        self.isPaused = False
 
     def initGame(self):
         self.world = World()
@@ -40,12 +43,36 @@ class GameScene(Scene):
         self.label.y = height/2
         self.addComponent(self.label)
 
+        window = self.app.window
+        width, height = self.app.width, self.app.height
+
+        resume = Button(window, width/2, 1.5*height/3,
+                            font=textFont, text="Resume Game",
+                            fillColor=Color(255, 255, 255),
+                            padding=10)
+        resume.setOnClickListener(self.removePause)
+
+        quit = Button(window, width/2, 2*height/3,
+                            font=textFont, text="Quit Game",
+                            fillColor=Color(255, 255, 255),
+                            padding=10)
+        quit.setOnClickListener(self.app.quit)
+
+        resume.setEnabled(False)
+        quit.setEnabled(False)
+        self.pauseComponents = [resume, quit]
+        self.addComponents(self.pauseComponents)
+
+        
+
 # Cite https://techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation/
 # or change code
     def drawComponents(self):
         self.drawBackground()
         self.drawTerrain()
         self.drawPlayer()
+        if self.isPaused:
+            self.drawPause()
 
         super().drawComponents()
 
@@ -99,6 +126,7 @@ class GameScene(Scene):
 
     def onKeyPress(self, keys, mods):
         super().onKeyPress(keys, mods)
+        if self.isPaused: return
         player = self.player
 
         if keys[pygame.K_a]:
@@ -110,7 +138,7 @@ class GameScene(Scene):
         elif keys[pygame.K_s]:
             player.move(0, -1)
         elif keys[pygame.K_ESCAPE]:
-            self.togglePause()
+            self.isPaused = True
         else:
             player.faceDirection(0, 0)
 
@@ -121,9 +149,23 @@ class GameScene(Scene):
 
     def onMouseClick(self, mousePos):
         for component in self.components:
-            if (isinstance(component, Clickable) and 
+            if (isinstance(component, Clickable) and
+                component.isEnabled and
                 component.isClicked(mousePos)):
                 component.click()
 
-    def togglePause(self):
-        pass
+    def drawPause(self):
+        filter = pygame.Surface((self.app.width, self.app.height))
+        filter.set_alpha(100)
+        filter.fill((255, 255, 255))
+        self.app.window.blit(filter, (0, 0))
+
+        for component in self.pauseComponents:
+            component.setEnabled(True)
+
+    def removePause(self):
+        self.isPaused = False
+        for component in self.pauseComponents:
+            component.setEnabled(False)
+
+        
