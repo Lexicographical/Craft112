@@ -3,6 +3,7 @@ from noise import snoise2
 from game.world.block import Block
 from game.world.material import Material
 from utility.constants import Constants
+from utility.utility import Utility
 
 # TODO: blit all tiles for 100 radius then re-render as necessary
 class World:
@@ -30,6 +31,11 @@ class World:
     def generateWorld(self):
         elevation = self.generateElevations()
         # elevation = [0]*self.width
+        # for i in range(self.width):
+        #     if i & 3:
+        #         elevation[i] = -1
+        #     else:
+        #         elevation[i] = 1
         for j in range(self.height):
             self.blocks.append([])
             for i in range(self.width):
@@ -57,7 +63,8 @@ class World:
         self.blocks[j][i] = Block(blockType, i, j)
 
     def getBlock(self, coordinate):
-        i, j = [int(k) for k in self.coordinateToIndex(coordinate)]
+        i, j = [Utility.round(k) for k in coordinate]
+        i, j = self.coordinateToIndex((i, j))
         if i < 0 or i >= self.width or j < 0 or j >= self.height:
             return Constants.AIR_BLOCK
         block = self.blocks[j][i]

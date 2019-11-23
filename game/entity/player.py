@@ -11,8 +11,7 @@ class Player(Entity):
     def __init__(self, world):
         super().__init__(Entities.PLAYER, world, 20, "sprite", "spriteLeft", "spriteRight")
         self.inventory = Inventory(Constants.INVENTORY_WIDTH, Constants.INVENTORY_HEIGHT)
+        self.equipIndex = 0
     
-    def addItem(self, item):
-        return self.inventory.addItem(item)
-
-    
+    def getInventory(self):
+        return self.inventory

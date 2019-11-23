@@ -27,5 +27,5 @@ class Scene:
         if keys[pygame.K_q] and (mods & pygame.KMOD_CTRL):
             self.app.quit()
 
-    def onMouseClick(self, mousePos):
-        pass
+    def onMouseClick(self, mousePos): pass
+    def onMouseScroll(self, scroll): pass

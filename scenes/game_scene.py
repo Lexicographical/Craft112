@@ -39,7 +39,7 @@ class GameScene(Scene):
         self.label = Label(self.app.window, 0, 0, text="(0, 0)", font=textFont)
         rect = self.label.label.get_rect()
         width, height = rect.width, rect.height
-        self.label.x = width
+        self.label.x = self.app.width - width
         self.label.y = height/2
         self.addComponent(self.label)
 
@@ -63,14 +63,11 @@ class GameScene(Scene):
         self.pauseComponents = [resume, quit]
         self.addComponents(self.pauseComponents)
 
-        
-
-# Cite https://techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation/
-# or change code
     def drawComponents(self):
         self.drawBackground()
         self.drawTerrain()
         self.drawPlayer()
+        self.drawInventory()
         if self.isPaused:
             self.drawPause()
 
@@ -122,6 +119,22 @@ class GameScene(Scene):
 
         self.label.setText(player.getPosition())
 
+    def drawInventory(self):
+        inventory = self.player.getInventory()
+        width, height = inventory.getDimensions()
+        panelWidth = self.app.width / 2
+
+        # rect = pygame.Rect(0, 0, panelWidth, 50)
+        # pygame.draw.rect(self.app.window, Color(0, 0, 0), rect, 1)
+
+        cellSize = 40
+        for i in range(width):
+            rect = pygame.Rect(i * cellSize, 10, cellSize, cellSize)
+            borderWidth = 1
+            if i == self.player.equipIndex:
+                borderWidth = 3
+            pygame.draw.rect(self.app.window, Color(0, 0, 0), rect, borderWidth)
+
     def onKeyPress(self, keys, mods):
         super().onKeyPress(keys, mods)
         if self.isPaused: return
@@ -131,10 +144,6 @@ class GameScene(Scene):
             player.move(-1, 0, walk=True)
         elif keys[pygame.K_d]:
             player.move(1, 0, walk=True)
-        # elif keys[pygame.K_w]:
-        #     player.move(0, 1)
-        # elif keys[pygame.K_s]:
-        #     player.move(0, -1)
         elif keys[pygame.K_ESCAPE]:
             self.isPaused = True
         else:
@@ -151,6 +160,11 @@ class GameScene(Scene):
                 component.isEnabled and
                 component.isClicked(mousePos)):
                 component.click()
+
+    def onMouseScroll(self, scroll):
+        player = self.player
+        inventory = player.getInventory()
+        player.equipIndex = (player.equipIndex + scroll) % (inventory.width)
 
     def drawPause(self):
         filter = pygame.Surface((self.app.width, self.app.height))

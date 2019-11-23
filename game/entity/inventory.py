@@ -14,3 +14,6 @@ class Inventory:
                     self.contents[i][j] = itemStack
                     return True
         return False
+
+    def getDimensions(self):
+        return (self.width, self.height)

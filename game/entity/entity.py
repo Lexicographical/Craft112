@@ -48,13 +48,17 @@ class Entity(pygame.sprite.Sprite):
     # TODO: make movement in terms of velocity
     # cancel velocity if collision occurs
     def move(self, dx, dy, walk=False):
-        xFactor = round(dx*0.25, 2)
+        xFactor = round(dx*0.2, 2)
 
         self.position[0] += xFactor
         self.position[1] += round(dy*0.25, 2)
 
+        x, y = self.position
+
         world = self.world
-        if not (-world.wOffset <= self.position[0] <= world.wOffset):
+        block = world.getBlock((x, y))
+        if (not (-world.wOffset <= self.position[0] <= world.wOffset) or
+            block.getType() != Material.AIR):
             self.position[0] -= xFactor
 
         if walk:
@@ -63,7 +67,6 @@ class Entity(pygame.sprite.Sprite):
     def jump(self):
         self.velocY += Constants.GRAVITY*2
         self.isJumping = True
-        print("Jump")
 
     def update(self):
         self.fall()
