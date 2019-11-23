@@ -85,8 +85,6 @@ class GameScene(Scene):
         coord = [windowSize[i] - bgSize[i] - player.position[i] for i in range(2)]
         window.blit(bg, coord)
 
-    # TODO: preview positioning is not working properly
-    # blocks are not in the right position. fix
     def drawTerrain(self):
         world = self.world
         height, width = self.previewHeight, self.previewWidth
@@ -133,10 +131,10 @@ class GameScene(Scene):
             player.move(-1, 0, walk=True)
         elif keys[pygame.K_d]:
             player.move(1, 0, walk=True)
-        elif keys[pygame.K_w]:
-            player.move(0, 1)
-        elif keys[pygame.K_s]:
-            player.move(0, -1)
+        # elif keys[pygame.K_w]:
+        #     player.move(0, 1)
+        # elif keys[pygame.K_s]:
+        #     player.move(0, -1)
         elif keys[pygame.K_ESCAPE]:
             self.isPaused = True
         else:
