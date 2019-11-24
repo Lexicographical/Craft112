@@ -1,7 +1,7 @@
 import random
 from noise import snoise2
 from game.world.block import Block
-from game.world.material import Material
+from game.item.material import Material
 from utility.constants import Constants
 from utility.utility import Utility
 

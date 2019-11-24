@@ -1,8 +1,8 @@
 import pygame
 from game.entity.entity import *
 from utility.assets import Assets
-from game.world.material import Material
-from game.world.item import ItemStack
+from game.item.material import Material
+from game.item.item import ItemStack
 from game.entity.inventory import Inventory
 from utility.constants import Constants
 

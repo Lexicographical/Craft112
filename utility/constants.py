@@ -1,6 +1,6 @@
 from game.world.block import Block
-from game.world.material import Material
-from game.world.item import ItemStack
+from game.item.material import Material
+from game.item.item import ItemStack
 
 class Constants:
     WORLD_HEIGHT = 101

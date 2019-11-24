@@ -1,5 +1,5 @@
 from enum import Enum
-from game.world.material import Material
+from game.item.material import Material
 import uuid
 
 class ItemStack:

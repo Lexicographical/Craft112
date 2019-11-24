@@ -1,6 +1,6 @@
 import pygame
 from enum import Enum
-from game.world.material import Material
+from game.item.material import Material
 from utility.constants import Constants
 from utility.assets import Assets
 import uuid

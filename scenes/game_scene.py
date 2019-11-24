@@ -25,6 +25,7 @@ class GameScene(Scene):
         self.world = World()
         self.world.generateWorld()
         self.player = Player(self.world)
+
         y = self.world.getHighestBlock(0)
         print("Highest block", y)
         self.player.position = [0, y]
@@ -102,7 +103,7 @@ class GameScene(Scene):
 
     def drawBlock(self, block, position):
         window = self.app.window
-        texture = Assets.assets["blocks"][block.getType().value]
+        texture = Assets.assets["textures"][block.getType().value]
         
         x, y = position
         size = self.blockSize
@@ -128,8 +129,9 @@ class GameScene(Scene):
         # pygame.draw.rect(self.app.window, Color(0, 0, 0), rect, 1)
 
         cellSize = 40
+        offset = 5
         for i in range(width):
-            rect = pygame.Rect(i * cellSize, 10, cellSize, cellSize)
+            rect = pygame.Rect(i * cellSize + offset, offset, cellSize, cellSize)
             borderWidth = 1
             if i == self.player.equipIndex:
                 borderWidth = 3
@@ -147,7 +149,12 @@ class GameScene(Scene):
         elif keys[pygame.K_ESCAPE]:
             self.isPaused = True
         else:
-            player.faceDirection(0, 0)
+            for i in range(9):
+                if keys[pygame.K_1 + i]:
+                    player.equipIndex = i
+                    break
+            else:
+                player.faceDirection(0, 0)
 
         if not player.isJumping and keys[pygame.K_SPACE]:
             player.jump()
