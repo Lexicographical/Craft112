@@ -17,3 +17,6 @@ class Inventory:
 
     def getDimensions(self):
         return (self.width, self.height)
+
+    def __getitem__(self, index):
+        return self.contents[index]

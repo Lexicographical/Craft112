@@ -4,6 +4,8 @@ from game.world.block import Block
 from game.item.material import Material
 from utility.constants import Constants
 from utility.utility import Utility
+from game.entity.enemy import Enemy
+from game.entity.entity import *
 
 # TODO: blit all tiles for 100 radius then re-render as necessary
 class World:
@@ -44,7 +46,9 @@ class World:
             for j in range(self.height):
                 x, y = self.indexToCoordinate((i, j))
                 blockType = Material.DIRT
-                if y > elevation[i]:
+                if y == int(elevation[i]):
+                    blockType = Material.GRASS
+                elif y > elevation[i]:
                     blockType = Material.AIR
                 self.blocks[j][i] = Block(blockType, x, y)
 
@@ -79,3 +83,24 @@ class World:
         print("Max reached")
         _, y = self.indexToCoordinate((0, self.height))
         return y
+
+# TODO: add entity spawning
+    def rngSpawnEntity(self, player, spawn=False):
+        if len(self.entities) == 3: return
+        chance = random.random()
+        if spawn or chance < 0.1:
+            x, _ = player.position
+            chance = random.random()
+            sign = -1 if chance < 0.5 else 1
+            chance = (chance + 0.5) if chance < 0.5 else chance
+            offset = chance * 3
+            x += sign * (5 + offset)
+            y = self.getHighestBlock(x)
+            self.spawnEntity((x, y))
+            
+    def spawnEntity(self, position):
+        enemy = Enemy(Entities.ENEMY, self, 20,
+                        "enemy", "enemyLeft", "enemyRight", 1)
+        enemy.setPosition(position)
+        self.entities.add(enemy)
+        print("Spawned enemy", position)

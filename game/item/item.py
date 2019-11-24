@@ -8,7 +8,7 @@ class ItemStack:
         self.amount = amount
         self.uuid = uuid.uuid4()
 
-    def getMaterial(self):
+    def getType(self):
         return self.material
 
     def getAmount(self):

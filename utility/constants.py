@@ -12,7 +12,6 @@ class Constants:
     TEXT_COLOR = (0, 0, 0)
     FPS = 60
 
-    SPRITE_COUNT = -1
     WALK_FACTOR = 3
     JUMP_FACTOR = 0.2
     GRAVITY = 0.2

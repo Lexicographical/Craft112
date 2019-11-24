@@ -5,32 +5,43 @@ from game.item.material import Material
 class Assets:
     assets = {}
 
+    # TODO: make connecting background
     @staticmethod
-    def loadAssets():
+    def loadAssets(app):
         assets = {}
-        assets["spriteLeft"] = [
+        assets["playerLeft"] = [
             Assets.loadImage(f"L{i}.png", folder="entity")
             for i in range(1, 10)
         ]
-        assets["spriteRight"] = [
+        assets["playerRight"] = [
             Assets.loadImage(f"R{i}.png", folder="entity")
             for i in range(1, 10)
         ]
-        Constants.SPRITE_COUNT = len(assets["spriteLeft"])
-        assets["sprite"] = Assets.loadImage("standing.png", folder="entity")
-        assets["background"] = Assets.loadImage("background.jpg", transparent=False)
+
+        assets["player"] = Assets.loadImage("standing.png", folder="entity")
+
+        assets["enemyLeft"] = [
+            Assets.loadImage(f"L{i}E.png", folder="entity")
+            for i in range(1, 9)
+        ]
+        assets["enemyRight"] = [
+            Assets.loadImage(f"R{i}E.png", folder="entity")
+            for i in range(1, 9)
+        ]
+        assets["enemy"] = assets["enemyLeft"][0]
+
+        assets["background"] = Assets.loadImage("background.png", transparent=False)
+        assets["background"] = pygame.transform.scale(assets["background"], (960, 540))
 
         assets["textures"] = {}
 
         for material in Material:
             try:
-                id = material.value
-                img = Assets.loadImage(f"{id}.png", folder="material", transparent=False)
+                id, transparent = material.getValues()
+                img = Assets.loadImage(f"{id}.png", folder="material", transparent=transparent)
                 assets["textures"][id] = img
             except:
                 print(f"Could not open {id}.png")
-
-        assets["textures"][0] = Assets.loadImage("0.png", folder="material")
 
         Assets.assets = assets
 

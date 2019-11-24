@@ -118,6 +118,9 @@ class Entity(pygame.sprite.Sprite):
     def getPosition(self):
         return "(%.2f, %.2f)" % (self.position[0], self.position[1])
 
+    def setPosition(self, position):
+        self.position = position
+
     def draw(self, window, x, y):
         # create rect for sprite location
         width, height = self.sprite.get_size()
@@ -134,8 +137,7 @@ class Entity(pygame.sprite.Sprite):
             window.blit(self.sprite, spriteRect)
         self.walkTick += 1
 
-        spriteCount = Constants.SPRITE_COUNT
-        if self.walkTick >= spriteCount * Constants.WALK_FACTOR:
+        if self.walkTick >= len(self.spriteLeft) * Constants.WALK_FACTOR:
             self.walkTick = 0
 
     def __hash__(self):
@@ -144,3 +146,4 @@ class Entity(pygame.sprite.Sprite):
 # List of all entity types
 class Entities(Enum):
     PLAYER = "player"
+    ENEMY = "enemy"

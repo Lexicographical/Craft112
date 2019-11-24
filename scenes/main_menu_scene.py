@@ -1,6 +1,5 @@
 import pygame
 from components.button import Button
-from components.clickable import Clickable
 from components.label import Label
 from scenes.scene import Scene
 from utility.colors import Colors
@@ -38,7 +37,4 @@ class MainMenuScene(Scene):
             self.app.changeScene("game")
 
     def onMouseClick(self, mousePos):
-        for component in self.components:
-            if (isinstance(component, Clickable) and 
-                component.isClicked(mousePos)):
-                component.click()
+        super().onMouseClick(mousePos)

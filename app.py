@@ -4,11 +4,13 @@ from scenes.main_menu_scene import MainMenuScene
 from scenes.game_scene import GameScene
 from utility.constants import Constants
 from utility.assets import Assets
+from threading import Thread
+import sys
 
 class App:
     TITLE = "Craft 112"
 
-    def __init__(self, width=640, height=400):
+    def __init__(self, width=640, height=480):
         self.running = False
         self.width, self.height = width, height
         self.scenes = {}
@@ -21,7 +23,7 @@ class App:
         self.window = pygame.display.set_mode(
                     (self.width, self.height))
         pygame.display.set_caption(App.TITLE)
-        Assets.loadAssets()
+        Assets.loadAssets(self)
         self.initializeScenes()
         self.changeScene("main")
         self.running = True
@@ -44,16 +46,27 @@ class App:
             elif event.button in [4, 5]:
                 scroll = 1 if event.button == 4 else -1
                 self.activeScene.onMouseScroll(scroll)
+        if event.type == pygame.KEYDOWN:
+            key = event.key
+            self.onKeyDown(key)
 
     def onKeyPress(self, keys, mods):
         self.activeScene.onKeyPress(keys, mods)
+
+    def onKeyDown(self, key):
+        self.activeScene.onKeyDown(key)
  
     def onDraw(self):
         if self.activeScene is not None:
             self.activeScene.drawComponents()
 
+    def onTick(self):
+        if self.activeScene is not None:
+            self.activeScene.onTick()
+
     def start(self):
         self.initialize()
+        self.playMusic()
         while self.running:
             self.window.fill((255, 255, 255))
 
@@ -65,9 +78,16 @@ class App:
                 self.onEvent(event)
 
             self.onDraw()
+            self.onTick()
             pygame.display.update()
             self.clock.tick(Constants.FPS)
         pygame.quit()
 
     def quit(self):
         self.running = False
+
+    def playMusic(self):
+        soundtrack = pygame.mixer.Sound("assets/sounds/soundtrack.wav")
+        thread = Thread(target=lambda: 
+            pygame.mixer.Channel(0).play(soundtrack, loops=-1))
+        thread.start()

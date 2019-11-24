@@ -1,5 +1,6 @@
 import pygame
 from components.component import Component
+from components.clickable import Clickable
 
 # Top-level class for scenes in the game
 class Scene:
@@ -27,5 +28,14 @@ class Scene:
         if keys[pygame.K_q] and (mods & pygame.KMOD_CTRL):
             self.app.quit()
 
-    def onMouseClick(self, mousePos): pass
+    def onKeyDown(self, event): pass
+
+    def onMouseClick(self, mousePos): 
+        for component in self.components:
+            if (isinstance(component, Clickable) and 
+                component.isClicked(mousePos) and
+                component.isEnabled):
+                component.click()
+
     def onMouseScroll(self, scroll): pass
+    def onTick(self): pass
