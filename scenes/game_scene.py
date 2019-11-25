@@ -4,9 +4,11 @@ from pygame.color import Color
 from components.button import Button
 from components.label import Label
 from game.entity.player import Player
+from game.entity.enemy import Enemy
 from game.item.item import *
 from game.item.material import Material
 from game.world.world import World
+from game.world.position import Position
 from scenes.scene import Scene
 from utility.assets import Assets
 from utility.colors import Colors
@@ -29,7 +31,7 @@ class GameScene(Scene):
 
         y = self.world.getHighestBlock(0)
         print("Highest block", y)
-        self.player.position = [0, y]
+        self.player.position = Position(0, y)
         self.world.entities.add(self.player)
 
         self.previewWidth = 10
@@ -152,8 +154,6 @@ class GameScene(Scene):
             if not isinstance(entity, Player):
                 ry += self.renderOffset
             entity.draw(window, rx, ry)
-            # print(x, y, rx, ry)
-        # print()
 
     def drawInventory(self):
         window = self.app.window
@@ -173,7 +173,10 @@ class GameScene(Scene):
             if item.getType() != Material.AIR:
                 id = item.getType().getId()
                 texture = Assets.assets["textures"][id]
-                window.blit(texture, rect)
+                tWidth, tHeight = texture.get_size()
+                tRect = pygame.Rect(0, 0, tWidth, tHeight)
+                tRect.center = rect.center
+                window.blit(texture, tRect)
   
     # TODO: implement
     def drawEquipped(self):
@@ -224,8 +227,9 @@ class GameScene(Scene):
         px, py = self.player.position
         size = Constants.blockSize
         height, width = self.previewHeight, self.previewWidth
+        xOffset = 0
 
-        x = rx/size + (abs(px) % 1) - width
+        x = rx/size + (abs(px) % 1) - width - xOffset
         y = ry/size + (abs(py) % 1) - height + self.renderOffset
 
         bx = px + x
@@ -243,11 +247,30 @@ class GameScene(Scene):
     def damageEntity(self, mousePos):
         mx, my = mousePos
         cx, cy = self.app.width/2, self.app.height/2
+        player = self.player
         direction = -1
+        damageReach = 2
+        base_damage = 5
+
         if mx > cx:
             direction = 1
+
+        dead = []
         for entity in self.world.entities:
-            pass
+            if isinstance(entity, Enemy):
+                pPos = player.position
+                ePos = entity.position
+                
+                px, ex = pPos[0], ePos[0]
+
+                relativeDelta = math.copysign(1, ex-px)
+                distance = pPos.distance(ePos)
+                if relativeDelta == direction and distance <= damageReach:
+                    entity.damage(base_damage)
+                    if not entity.isAlive:
+                        dead.append(entity)
+        for entity in dead:
+            self.world.entities.remove(entity)
 
     def onMouseScroll(self, scroll):
         player = self.player

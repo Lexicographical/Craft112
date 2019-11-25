@@ -6,4 +6,4 @@ class Enemy(Entity):
         super().__init__(entityType, world, health,
                           sprite, spriteLeft, spriteRight)
 
-        self.damage = damage
+        self.base_damage = damage

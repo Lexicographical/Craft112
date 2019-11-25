@@ -13,6 +13,7 @@ class Entity(pygame.sprite.Sprite):
         self.type = type
         self.position = [0, 0]
         self.maxHealth = self.health = health
+        self.isAlive = True
         self.world = world
 
         self.sprite = Assets.assets[sprite]
@@ -33,6 +34,9 @@ class Entity(pygame.sprite.Sprite):
 
     def damage(self, dmg):
         self.health -= dmg
+        if self.health <= 0:
+            self.health = 0
+            self.isAlive = False
 
     def faceDirection(self, dx, dy):
         if (dx, dy) == (-1, 0):

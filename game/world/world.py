@@ -2,6 +2,7 @@ import random
 from noise import snoise2
 from game.world.block import Block
 from game.item.material import Material
+from game.world.position import Position
 from utility.constants import Constants
 from utility.utility import Utility
 from game.entity.enemy import Enemy
@@ -96,12 +97,12 @@ class World:
         if spawn or (len(self.entities) <= 3 and chance < 0.1):
             x, _ = player.position
             chance = random.random()
-            sign = -1 if chance < 0.5 else 1
+            sign = math.copysign(1, chance - 0.5)
             chance = (chance + 0.5) if chance < 0.5 else chance
             offset = chance * 5
             x += sign * (3 + offset)
             y = self.getHighestBlock(x)
-            self.spawnEntity((x, y))
+            self.spawnEntity(Position(x, y))
             
     def spawnEntity(self, position):
         enemy = Enemy(Entities.ENEMY, self, 20,
