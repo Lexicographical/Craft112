@@ -30,13 +30,14 @@ class GameScene(Scene):
         y = self.world.getHighestBlock(0)
         print("Highest block", y)
         self.player.position = [0, y]
+        self.world.entities.add(self.player)
 
         self.previewWidth = 10
-        self.blockSize = self.app.width / (self.previewWidth * 2 + 1)
-        self.previewHeight = math.ceil(self.app.height / self.blockSize)
+        Constants.blockSize = self.app.width / (self.previewWidth * 2 + 1)
+        self.previewHeight = math.ceil(self.app.height / Constants.blockSize)
 
         self.offset = 5 # load outside canvas to hide buffering
-        self.renderOffset = 7.5
+        self.renderOffset = 7.6
         self.spawnTickRate = 10
         self.tick = 0
 
@@ -81,7 +82,6 @@ class GameScene(Scene):
         self.drawBackground()
         self.drawTerrain()
         self.drawEntities()
-        self.drawPlayer()
         self.drawInventory()
         self.drawEquipped()
         self.drawPause()
@@ -115,15 +115,15 @@ class GameScene(Scene):
         offset = self.offset
         renderOffset = self.renderOffset
         
-        size = self.blockSize
+        size = Constants.blockSize
         for y in range(-height-offset, height+offset):
             for x in range(-width-offset, width+offset):
                 bx = px + x
                 by = py - y
                 block = world.getBlock((bx, by))
 
-                renderX = (x+width - abs(px)%1) * size
-                renderY = (y+height-renderOffset - abs(py)%1) * size
+                renderX = (x+width) * size
+                renderY = (y+height-renderOffset) * size
                 self.drawBlock(block, (renderX, renderY))
 
     def drawBlock(self, block, position):
@@ -131,21 +131,15 @@ class GameScene(Scene):
         texture = Assets.assets["textures"][block.getType().getId()]
         
         x, y = position
-        size = self.blockSize
+        size = Constants.blockSize
         blockRect = pygame.Rect(0, 0, size, size)
         blockRect.center = (x + size/2, y + size/2)
 
         window.blit(texture, blockRect)
 
-    def drawPlayer(self):
-        window = self.app.window
-        cx, cy = self.app.width / 2, self.app.height / 2
-        player = self.player
-        player.draw(window, cx, cy)
-
-        self.label.setText(player.getPosition())
-
     def drawEntities(self):
+        self.label.setText(self.player.getPosition())
+
         window = self.app.window
         world = self.world
         px, py = self.player.position
@@ -153,8 +147,10 @@ class GameScene(Scene):
 
         for entity in world.entities:
             x, y = entity.position
-            rx = cx + (x - px) * self.blockSize
-            ry = cy + (-y + py) * self.blockSize
+            rx = cx + (x - px) * Constants.blockSize
+            ry = cy + (-y + py) * Constants.blockSize
+            if not isinstance(entity, Player):
+                ry += self.renderOffset
             entity.draw(window, rx, ry)
             # print(x, y, rx, ry)
         # print()
@@ -218,16 +214,15 @@ class GameScene(Scene):
         item = self.player.getEquippedItem()
 
         if item.getType() == Material.PICKAXE:
-            block, bx, by = self.getBlockFromMousePos(mousePos)
-            x, y = block.getPosition()
-            print("Removing", (bx, by), (x, y))
-            self.world.setBlock(Material.AIR, (bx, by))
+            self.breakBlock(mousePos)
+        elif item.getType() == Material.SWORD:
+            self.damageEntity(mousePos)
 
     # TODO: improve accuracy
     def getBlockFromMousePos(self, mousePos):
         rx, ry = mousePos
         px, py = self.player.position
-        size = self.blockSize
+        size = Constants.blockSize
         height, width = self.previewHeight, self.previewWidth
 
         x = rx/size + (abs(px) % 1) - width
@@ -239,12 +234,28 @@ class GameScene(Scene):
         block = self.world.getBlock((bx, by))
         return block, bx, by
 
+    def breakBlock(self, mousePos):
+        block, bx, by = self.getBlockFromMousePos(mousePos)
+        x, y = block.getPosition()
+        print("Removing", (bx, by), (x, y))
+        self.world.setBlock(Material.AIR, (bx, by))
+
+    def damageEntity(self, mousePos):
+        mx, my = mousePos
+        cx, cy = self.app.width/2, self.app.height/2
+        direction = -1
+        if mx > cx:
+            direction = 1
+        for entity in self.world.entities:
+            pass
+
     def onMouseScroll(self, scroll):
         player = self.player
         inventory = player.getInventory()
         player.equipIndex = (player.equipIndex - scroll) % (inventory.width)
 
     def onTick(self):
+        return
         self.tick += 1
         if self.tick == self.spawnTickRate:
             self.tick = 0

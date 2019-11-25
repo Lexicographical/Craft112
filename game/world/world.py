@@ -16,6 +16,8 @@ class World:
         
         self.wOffset = Constants.WORLD_WIDTH // 2
         self.hOffset = Constants.WORLD_HEIGHT // 2
+        
+        print("Offsets", self.wOffset, self.hOffset)
 
         self.blocks = []
         self.entities = set()
@@ -66,12 +68,16 @@ class World:
         i, j = [int(k) for k in self.coordinateToIndex(coordinate)]
         self.blocks[j][i] = Block(blockType, i, j)
 
-    def getBlock(self, coordinate):
+    def getBlock(self, coordinate, coord=False):
         i, j = [Utility.round(k) for k in coordinate]
         i, j = self.coordinateToIndex((i, j))
         if i < 0 or i >= self.width or j < 0 or j >= self.height:
+            if coord:
+                return Constants.AIR_BLOCK, (i, j)
             return Constants.AIR_BLOCK
         block = self.blocks[j][i]
+        if coord:
+            return block, (i, j)
         return block
 
     def getHighestBlock(self, x):
@@ -86,15 +92,14 @@ class World:
 
 # TODO: add entity spawning
     def rngSpawnEntity(self, player, spawn=False):
-        if len(self.entities) == 3: return
         chance = random.random()
-        if spawn or chance < 0.1:
+        if spawn or (len(self.entities) <= 3 and chance < 0.1):
             x, _ = player.position
             chance = random.random()
             sign = -1 if chance < 0.5 else 1
             chance = (chance + 0.5) if chance < 0.5 else chance
-            offset = chance * 3
-            x += sign * (5 + offset)
+            offset = chance * 5
+            x += sign * (3 + offset)
             y = self.getHighestBlock(x)
             self.spawnEntity((x, y))
             

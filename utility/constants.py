@@ -7,6 +7,8 @@ class Constants:
     WORLD_WIDTH = 201
     SEED_MAX = (1 << 16) - 1
 
+    BLOCK_SIZE = 10
+
     DEFAULT_WIDTH = 30
     DEFAULT_HEIGHT = 10
     TEXT_COLOR = (0, 0, 0)

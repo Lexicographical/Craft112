@@ -12,7 +12,7 @@ class Entity(pygame.sprite.Sprite):
         super().__init__()
         self.type = type
         self.position = [0, 0]
-        self.health = health
+        self.maxHealth = self.health = health
         self.world = world
 
         self.sprite = Assets.assets[sprite]
@@ -53,14 +53,11 @@ class Entity(pygame.sprite.Sprite):
         self.position[0] += xFactor
         self.position[1] += round(dy*0.25, 2)
 
-        x, y = self.position
-
         world = self.world
-        block = world.getBlock((x, y))
+        block = self.world.getBlock(self.position)
         if (not (-world.wOffset <= self.position[0] <= world.wOffset) or
             block.getType() != Material.AIR):
             self.position[0] -= xFactor
-
         if walk:
             self.faceDirection(dx, dy)
 
@@ -85,16 +82,6 @@ class Entity(pygame.sprite.Sprite):
             block = world.getBlock((x, y))
             if block.getType() != Material.AIR:
                 self.position[1] += 1
-            
-        # if self.isJumping:
-        #     if self.jumpTick >= -10:
-        #         sign = -1 if self.jumpTick < 0 else 1
-        #         dy = abs(self.jumpTick) * Constants.JUMP_FACTOR * sign
-        #         self.move(0, dy)
-        #         self.jumpTick -= 1
-        #     else:
-        #         self.isJumping = False
-        #         self.jumpTick = 10
 
     def drop(self, sign):
         world = self.world
@@ -122,6 +109,10 @@ class Entity(pygame.sprite.Sprite):
         self.position = position
 
     def draw(self, window, x, y):
+        self.drawSprite(window, x, y)
+        self.drawHealthBar(window, x, y)
+
+    def drawSprite(self, window, x, y):
         # create rect for sprite location
         width, height = self.sprite.get_size()
         spriteRect = pygame.Rect(0, 0, width, height)
@@ -139,6 +130,23 @@ class Entity(pygame.sprite.Sprite):
 
         if self.walkTick >= len(self.spriteLeft) * Constants.WALK_FACTOR:
             self.walkTick = 0
+
+    def drawHealthBar(self, window, x, y):
+        height = self.sprite.get_size()[1]
+        healthBarWidth = 50
+        healthBarHeight = 10
+
+        rect = pygame.Rect(0, 0, healthBarWidth, healthBarHeight)
+        rect.center = (x, y-healthBarHeight*2)
+
+        greenWidth = (self.health / self.maxHealth) * healthBarWidth
+        greenRect = pygame.Rect(0, 0, greenWidth, healthBarHeight)
+        greenRect.topleft = rect.topleft
+        
+        pygame.draw.rect(window, pygame.Color(255, 0, 0), rect)
+        pygame.draw.rect(window, pygame.Color(0, 255, 0), greenRect)
+        pygame.draw.rect(window, pygame.Color(0, 0, 0), rect, 1)
+
 
     def __hash__(self):
         return hash(self.uuid)
