@@ -6,7 +6,7 @@ from game.item.item import ItemStack
 from game.entity.inventory import Inventory
 from utility.constants import Constants
 
-# Player entity
+# Players are controllable entities 
 class Player(Entity):
     def __init__(self, world):
         super().__init__(Entities.PLAYER, world, 20, "player", "playerLeft", "playerRight")

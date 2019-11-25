@@ -2,6 +2,7 @@ import pygame
 from utility.constants import Constants
 from game.item.material import Material
 
+# Utility file for loading assets in the game
 class Assets:
     assets = {}
 

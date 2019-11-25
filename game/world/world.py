@@ -7,8 +7,9 @@ from utility.constants import Constants
 from utility.utility import Utility
 from game.entity.enemy import Enemy
 from game.entity.entity import *
+from game.entity.player import Player
 
-# TODO: blit all tiles for 100 radius then re-render as necessary
+# World stores all the in-game information about the current world
 class World:
     def __init__(self):
         self.seed = random.randrange(1, Constants.SEED_MAX)
@@ -18,10 +19,13 @@ class World:
         self.wOffset = Constants.WORLD_WIDTH // 2
         self.hOffset = Constants.WORLD_HEIGHT // 2
         
-        print("Offsets", self.wOffset, self.hOffset)
-
         self.blocks = []
         self.entities = set()
+        self.player = None
+
+        self.clockTick = 0
+        self.spawnTickRate = 10
+        self.spawnChance = 0.1
 
     def generateElevations(self):
         elevation = [0] * self.width
@@ -94,7 +98,7 @@ class World:
 # TODO: add entity spawning
     def rngSpawnEntity(self, player, spawn=False):
         chance = random.random()
-        if spawn or (len(self.entities) <= 3 and chance < 0.1):
+        if spawn or (len(self.entities) <= 3 and chance < self.spawnChance):
             x, _ = player.position
             chance = random.random()
             sign = math.copysign(1, chance - 0.5)
@@ -108,5 +112,20 @@ class World:
         enemy = Enemy(Entities.ENEMY, self, 20,
                         "enemy", "enemyLeft", "enemyRight", 1)
         enemy.setPosition(position)
-        self.entities.add(enemy)
+        self.addEntity(enemy)
         print("Spawned enemy", position)
+
+    def addEntity(self, entity):
+        self.entities.add(entity)
+        if isinstance(entity, Player):
+            self.player = entity
+
+    def tick(self):
+        self.clockTick += 1
+        if self.clockTick % self.spawnTickRate == 0:
+            pass
+            # self.rngSpawnEntity(self.player)
+        for entity in self.entities:
+            entity.update()
+            if isinstance(entity, Enemy):
+                entity.ai(self.player)

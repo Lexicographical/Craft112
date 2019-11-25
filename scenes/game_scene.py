@@ -29,19 +29,12 @@ class GameScene(Scene):
         self.world.generateWorld()
         self.initPlayer()
 
-        y = self.world.getHighestBlock(0)
-        print("Highest block", y)
-        self.player.position = Position(0, y)
-        self.world.entities.add(self.player)
-
         self.previewWidth = 10
         Constants.blockSize = self.app.width / (self.previewWidth * 2 + 1)
         self.previewHeight = math.ceil(self.app.height / Constants.blockSize)
 
         self.offset = 5 # load outside canvas to hide buffering
         self.renderOffset = 7.6
-        self.spawnTickRate = 10
-        self.tick = 0
 
     def initPlayer(self):
         self.player = Player(self.world)
@@ -51,6 +44,10 @@ class GameScene(Scene):
         self.player.getInventory().addItem(sword)
         self.player.getInventory().addItem(pickaxe)
 
+        y = self.world.getHighestBlock(0)
+        self.player.position = Position(0, y)
+        self.world.addEntity(self.player)
+ 
     def initComponents(self):
         textFont = pygame.font.Font(Fonts.Courier, 30)
         self.label = Label(self.app.window, 0, 0, text="(0, 0)", font=textFont)
@@ -245,8 +242,8 @@ class GameScene(Scene):
         self.world.setBlock(Material.AIR, (bx, by))
 
     def damageEntity(self, mousePos):
-        mx, my = mousePos
-        cx, cy = self.app.width/2, self.app.height/2
+        mx = mousePos[0]
+        cx = self.app.width/2
         player = self.player
         direction = -1
         damageReach = 2
@@ -277,12 +274,9 @@ class GameScene(Scene):
         inventory = player.getInventory()
         player.equipIndex = (player.equipIndex - scroll) % (inventory.width)
 
+    # TODO: re-enable onTick
     def onTick(self):
-        return
-        self.tick += 1
-        if self.tick == self.spawnTickRate:
-            self.tick = 0
-            self.world.rngSpawnEntity(self.player)
+        self.world.tick()
 
     def drawPause(self):
         if self.isPaused:

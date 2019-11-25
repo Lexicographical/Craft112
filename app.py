@@ -7,6 +7,7 @@ from utility.assets import Assets
 from threading import Thread
 import sys
 
+# Root app for starting the game
 class App:
     TITLE = "Craft 112"
 
@@ -91,3 +92,7 @@ class App:
         thread = Thread(target=lambda: 
             pygame.mixer.Channel(0).play(soundtrack, loops=-1))
         thread.start()
+
+if __name__ == "__main__":
+    app = App()
+    app.start()

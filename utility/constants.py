@@ -2,6 +2,7 @@ from game.world.block import Block
 from game.item.material import Material
 from game.item.item import ItemStack
 
+# Stores useful global constants
 class Constants:
     WORLD_HEIGHT = 101
     WORLD_WIDTH = 201

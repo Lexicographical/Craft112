@@ -1,4 +1,4 @@
-# Top-level class for all blocks in the game
+# Represents a block in the world at coordinate (x, y) of type `material`
 class Block:
     def __init__(self, material, x, y):
         self.material = material

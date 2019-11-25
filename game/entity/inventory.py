@@ -1,5 +1,6 @@
 from utility.constants import Constants
 
+# Inventory contains an MxN list of itemstacks
 class Inventory:
     def __init__(self, width, height):
         self.width = width

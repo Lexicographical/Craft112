@@ -1,5 +1,7 @@
 from game.entity.entity import *
+import math
 
+# Enemies are entities that will follow and attack the player
 class Enemy(Entity):
     def __init__(self, entityType, world, health,
                  sprite, spriteLeft, spriteRight, damage):
@@ -7,3 +9,16 @@ class Enemy(Entity):
                           sprite, spriteLeft, spriteRight)
 
         self.base_damage = damage
+        self.base_speed = 0.25
+        self.followThreshold = 20
+
+    def ai(self, player):
+        ePos = self.position
+        pPos = player.position
+        if ePos.distance(pPos) <= self.followThreshold:
+            ex = ePos[0]
+            px = pPos[0]
+            dx = math.copysign(self.base_speed, px-ex)
+            collide = not self.move(dx, 0, walk=True)
+            if collide:
+                self.jump()

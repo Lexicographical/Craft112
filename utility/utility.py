@@ -1,5 +1,6 @@
 import math
 
+# Helper class for utility functions
 class Utility:
     @staticmethod
     def debug(src, msg):

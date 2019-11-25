@@ -32,20 +32,20 @@ class Entity(pygame.sprite.Sprite):
 
         self.uuid = uuid.uuid4()
 
-    def damage(self, dmg):
+    def damage(self, dmg, dx, dy):
         self.health -= dmg
         if self.health <= 0:
             self.health = 0
             self.isAlive = False
 
     def faceDirection(self, dx, dy):
-        if (dx, dy) == (-1, 0):
+        if dx < 0 and dy == 0:
             self.isLeft = True
             self.isRight = False
-        elif (dx, dy) == (1, 0):
+        elif dx > 0 and dy == 0:
             self.isLeft = False
             self.isRight = True
-        elif (dx, dy) == (0, 0):
+        elif dx == 0 and dy == 0:
             self.isLeft = False
             self.isRight = False
 
@@ -62,16 +62,20 @@ class Entity(pygame.sprite.Sprite):
         if (not (-world.wOffset <= self.position[0] <= world.wOffset) or
             block.getType() != Material.AIR):
             self.position[0] -= xFactor
+            return False
         if walk:
             self.faceDirection(dx, dy)
+        return True
 
     def jump(self):
+        if self.isJumping: return
         self.velocY += Constants.GRAVITY*2
         self.isJumping = True
 
     def update(self):
         self.fall()
         world = self.world
+        
         if self.velocY != 0:
             self.isJumping = True
             sign = -1 if self.velocY < 0 else 1
@@ -136,7 +140,6 @@ class Entity(pygame.sprite.Sprite):
             self.walkTick = 0
 
     def drawHealthBar(self, window, x, y):
-        height = self.sprite.get_size()[1]
         healthBarWidth = 50
         healthBarHeight = 10
 
@@ -150,7 +153,6 @@ class Entity(pygame.sprite.Sprite):
         pygame.draw.rect(window, pygame.Color(255, 0, 0), rect)
         pygame.draw.rect(window, pygame.Color(0, 255, 0), greenRect)
         pygame.draw.rect(window, pygame.Color(0, 0, 0), rect, 1)
-
 
     def __hash__(self):
         return hash(self.uuid)

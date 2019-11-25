@@ -3,7 +3,6 @@ from components.component import Component
 from utility.constants import Constants
 
 # Text label UI component
-# TODO: add anchor support
 class Label(Component):
     def __init__(self, window, x, y, text, font, color=Constants.TEXT_COLOR,
                  background=None):

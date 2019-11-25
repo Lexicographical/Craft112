@@ -2,6 +2,7 @@ from enum import Enum
 from game.item.material import Material
 import uuid
 
+# An itemstack represents a stack of `amount` items of type `material`
 class ItemStack:
     def __init__(self, material, amount):
         self.material = material

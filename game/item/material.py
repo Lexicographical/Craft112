@@ -1,6 +1,9 @@
 from enum import Enum
 
+# Material represents a specific type of item/block
 class Material(Enum):
+    # First value is ID
+    # Second value represents if texture should support transparency
     AIR = 0, True
     STONE = 1, False
     GRASS = 2, False
