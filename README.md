@@ -9,7 +9,10 @@ Execute the following command in the directory of the project:
 pip install pygame noise
 ```
 
-To run, start `python app.py`
+To start the game, run 
+```
+python app.py
+```
 
 # Metrics
 To measure lines of code, run line_count.sh in a bash shell

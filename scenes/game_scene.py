@@ -263,7 +263,7 @@ class GameScene(Scene):
                 relativeDelta = math.copysign(1, ex-px)
                 distance = pPos.distance(ePos)
                 if relativeDelta == direction and distance <= damageReach:
-                    entity.damage(base_damage)
+                    entity.damage(base_damage, relativeDelta, 0)
                     if not entity.isAlive:
                         dead.append(entity)
         for entity in dead:
