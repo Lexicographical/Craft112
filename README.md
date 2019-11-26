@@ -19,4 +19,7 @@ To measure lines of code, run line_count.sh in a bash shell
 
 # Copyright
 Music: "A Closer Understanding of the Past" from Ori and the Blind Forest Soundtrack
-Background by Zeyu Ren 任泽宇
+
+Home Background by Zeyu Ren 任泽宇
+
+Sprites from https://techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation/

@@ -11,6 +11,9 @@ class Inventory:
     def addItem(self, itemStack):
         for i in range(self.height):
             for j in range(self.width):
+                if self.contents[i][j].getType() == itemStack.getType():
+                    self.contents[i][j].amount += 1
+                    return True
                 if self.contents[i][j] == Constants.EMPTY_ITEM:
                     self.contents[i][j] = itemStack
                     return True

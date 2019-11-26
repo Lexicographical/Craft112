@@ -4,6 +4,7 @@ from components.label import Label
 from scenes.scene import Scene
 from utility.colors import Colors
 from utility.fonts import Fonts
+from utility.assets import Assets
 
 # Scene to display the main menu
 class MainMenuScene(Scene):
@@ -30,6 +31,15 @@ class MainMenuScene(Scene):
 
         self.addComponents([title, startGame, quitGame])
 
+    def drawComponents(self):
+        self.drawBackground()
+        super().drawComponents()
+
+    def drawBackground(self):
+        window = self.app.window
+        bg = Assets.assets["background"]
+        window.blit(bg, (0, 0))
+
     def onKeyPress(self, keys, mods):
         super().onKeyPress(keys, mods)
         if keys[pygame.K_RETURN]:
@@ -38,5 +48,4 @@ class MainMenuScene(Scene):
     def onMouseClick(self, mousePos):
         super().onMouseClick(mousePos)
 
-    def onMouseMove(self, mousePos):
-        x, y = mousePos
+    def onMouseMove(self, mousePos): pass

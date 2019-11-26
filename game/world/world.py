@@ -24,7 +24,7 @@ class World:
         self.player = None
 
         self.clockTick = 0
-        self.spawnTickRate = 10
+        self.spawnTickRate = 5
         self.spawnChance = 0.1
 
     def generateElevations(self):

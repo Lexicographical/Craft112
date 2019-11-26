@@ -34,6 +34,9 @@ class Assets:
         assets["background"] = Assets.loadImage("background.png", transparent=False)
         assets["background"] = pygame.transform.scale(assets["background"], (960, 540))
 
+        assets["gradient"] = Assets.loadImage("gradient.png", transparent=False)
+        assets["gradient"] = pygame.transform.scale(assets["gradient"], (960, 540))
+
         assets["textures"] = {}
 
         for material in Material:

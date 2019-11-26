@@ -100,7 +100,7 @@ class GameScene(Scene):
     def drawBackground(self):
         window = self.app.window
         player = self.player
-        bg = Assets.assets["background"]
+        bg = Assets.assets["gradient"]
         bgSize = bg.get_size()
         windowSize = window.get_size()
         coord = [windowSize[i] - bgSize[i] - player.position[i] for i in range(2)]
@@ -186,6 +186,10 @@ class GameScene(Scene):
                 tRect = pygame.Rect(0, 0, tWidth, tHeight)
                 tRect.center = rect.center
                 window.blit(texture, tRect)
+
+                amount = item.getAmount()
+                if amount > 1:
+                    print("More than 1")
   
     # TODO: implement
     def drawEquipped(self):
@@ -251,8 +255,8 @@ class GameScene(Scene):
     def breakBlock(self, mousePos):
         block, bx, by = self.getBlockFromMousePos(mousePos)
         x, y = block.getPosition()
-        print("Removing", (bx, by), (x, y))
         self.world.setBlock(Material.AIR, (bx, by))
+        self.player.getInventory().addItem(ItemStack(block.getType(), 1))
 
     def damageEntity(self, mousePos):
         mx = mousePos[0]
