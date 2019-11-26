@@ -5,7 +5,7 @@ class Position:
         self.y = y
 
     def __repr__(self):
-        return str((self.x, self.y))
+        return "(%.2f, %.2f)" % (self.x, self.y)
 
     def __getitem__(self, index):
         return (self.x, self.y)[index]

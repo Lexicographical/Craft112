@@ -22,3 +22,5 @@ class Enemy(Entity):
             collide = not self.move(dx, 0, walk=True)
             if collide:
                 self.jump()
+            if abs(ex-px) < 1:
+                player.damage(self.base_damage, dx)

@@ -91,11 +91,9 @@ class World:
             if self.blocks[j][x].getType() != Material.AIR:
                 _, y = self.indexToCoordinate((0, j))
                 return y+1
-        print("Max reached")
         _, y = self.indexToCoordinate((0, self.height))
         return y
 
-# TODO: add entity spawning
     def rngSpawnEntity(self, player, spawn=False):
         chance = random.random()
         if spawn or (len(self.entities) <= 3 and chance < self.spawnChance):
@@ -113,13 +111,13 @@ class World:
                         "enemy", "enemyLeft", "enemyRight", 1)
         enemy.setPosition(position)
         self.addEntity(enemy)
-        print("Spawned enemy", position)
 
     def addEntity(self, entity):
         self.entities.add(entity)
         if isinstance(entity, Player):
             self.player = entity
 
+    # TODO: re-add rng spawning
     def tick(self):
         self.clockTick += 1
         if self.clockTick % self.spawnTickRate == 0:

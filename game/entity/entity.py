@@ -41,8 +41,10 @@ class Entity(pygame.sprite.Sprite):
             self.isAlive = False
 
     def doKnockback(self, dx):
-        self.velocity[0] += dx*Constants.GRAVITY
-        self.velocity[1] += Constants.GRAVITY
+        if self.velocity[0] == 0:
+            self.velocity[0] += dx*Constants.GRAVITY
+        if self.velocity[1] == 0:
+            self.velocity[1] += Constants.GRAVITY
 
     def faceDirection(self, dx, dy):
         if dx < 0 and dy == 0:
@@ -55,8 +57,6 @@ class Entity(pygame.sprite.Sprite):
             self.isLeft = False
             self.isRight = False
 
-    # TODO: make movement in terms of velocity
-    # cancel velocity if collision occurs
     def move(self, dx, dy, walk=False):
         xFactor = round(dx*0.2, 2)
 
@@ -90,6 +90,7 @@ class Entity(pygame.sprite.Sprite):
                 if axis == 1:
                     self.isJumping = True
                 sign = math.copysign(1, velocity)
+
                 if abs(velocity) < 1:
                     self.shift(axis, sign)
                 else:
@@ -97,8 +98,11 @@ class Entity(pygame.sprite.Sprite):
                     for _ in range(velocity):
                         if self.shift(axis, sign):
                             break
+
                 if axis == 0:
-                    self.velocity[axis] -= Constants.AIR_RESISTANCE
+                    self.velocity[axis] -= sign*Constants.AIR_RESISTANCE
+                    if math.copysign(1, self.velocity[axis]*sign) == -1:
+                        self.velocity[axis] = 0
             else:
                 x, y = self.position
                 block = world.getBlock((x, y))
@@ -126,7 +130,7 @@ class Entity(pygame.sprite.Sprite):
         return False
 
     def getPosition(self):
-        return "(%.2f, %.2f)" % (self.position[0], self.position[1])
+        return self.position
 
     def setPosition(self, position):
         self.position = position

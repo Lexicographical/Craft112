@@ -5,7 +5,6 @@ from scenes.scene import Scene
 from utility.colors import Colors
 from utility.fonts import Fonts
 
-# TODO: use pygame mixer to play sounds: https://www.pygame.org/docs/ref/mixer.html
 # Scene to display the main menu
 class MainMenuScene(Scene):
     def __init__(self, app):
@@ -38,3 +37,6 @@ class MainMenuScene(Scene):
 
     def onMouseClick(self, mousePos):
         super().onMouseClick(mousePos)
+
+    def onMouseMove(self, mousePos):
+        x, y = mousePos

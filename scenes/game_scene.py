@@ -60,22 +60,29 @@ class GameScene(Scene):
         window = self.app.window
         width, height = self.app.width, self.app.height
 
-        resume = Button(window, width/2, 1.5*height/3,
+        self.respawn = Button(window, width/2, 1.5*height/3,
+                            font=textFont, text="Respawn",
+                            fillColor=Colors.WHITE,
+                            padding=10)
+        self.respawn.setOnClickListener(self.respawnPlayer)
+
+        self.resume = Button(window, width/2, 1.5*height/3,
                             font=textFont, text="Resume Game",
                             fillColor=Colors.WHITE,
                             padding=10)
-        resume.setOnClickListener(self.togglePause)
+        self.resume.setOnClickListener(self.togglePause)
 
-        quit = Button(window, width/2, 2*height/3,
+        self.quit = Button(window, width/2, 2*height/3,
                             font=textFont, text="Quit Game",
                             fillColor=Colors.WHITE,
                             padding=10)
-        quit.setOnClickListener(self.app.quit)
+        self.quit.setOnClickListener(self.app.quit)  
 
-        resume.setEnabled(False)
-        quit.setEnabled(False)
-        self.pauseComponents = [resume, quit]
-        self.addComponents(self.pauseComponents)
+        self.respawn.setEnabled(False)
+        self.resume.setEnabled(False)
+        self.quit.setEnabled(False)
+
+        self.addComponents([self.resume, self.quit, self.respawn])
 
     def drawComponents(self):
         self.drawBackground()
@@ -83,7 +90,7 @@ class GameScene(Scene):
         self.drawEntities()
         self.drawInventory()
         self.drawEquipped()
-        self.drawPause()
+        self.drawOverlay()
 
         super().drawComponents()
 
@@ -137,7 +144,7 @@ class GameScene(Scene):
         window.blit(texture, blockRect)
 
     def drawEntities(self):
-        self.label.setText(self.player.getPosition())
+        self.label.setText(str(self.player.getPosition()))
 
         window = self.app.window
         world = self.world
@@ -193,7 +200,7 @@ class GameScene(Scene):
         player.update()
 
     def onKeyDown(self, key):
-        if key == pygame.K_ESCAPE:
+        if key == pygame.K_ESCAPE and self.player.isAlive:
             self.togglePause()
 
         if self.isPaused: return
@@ -274,22 +281,34 @@ class GameScene(Scene):
         inventory = player.getInventory()
         player.equipIndex = (player.equipIndex - scroll) % (inventory.width)
 
-    # TODO: re-enable onTick
     def onTick(self):
+        if self.isPaused: return
         self.world.tick()
+        if not self.player.isAlive:
+            self.isPaused = True
 
-    def drawPause(self):
-        if self.isPaused:
-            filter = pygame.Surface((self.app.width, self.app.height))
-            filter.set_alpha(100)
-            filter.fill((255, 255, 255))
-            self.app.window.blit(filter, (0, 0))
+    def drawOverlay(self):
+        if Constants.FILTER is None:
+            Constants.FILTER = pygame.Surface((self.app.width, self.app.height))
+            Constants.FILTER.set_alpha(100)
+            Constants.FILTER.fill((255, 255, 255))
 
-            for component in self.pauseComponents:
-                component.setEnabled(True)
+        if not self.player.isAlive:
+            self.app.window.blit(Constants.FILTER, (0, 0))
+            self.respawn.setEnabled(True)
+            self.quit.setEnabled(True)
+        elif self.isPaused:
+            self.app.window.blit(Constants.FILTER, (0, 0))
+            self.resume.setEnabled(True)
+            self.quit.setEnabled(True)
         else:
-            for component in self.pauseComponents:
-                component.setEnabled(False)
+            self.respawn.setEnabled(False)
+            self.resume.setEnabled(False)
+            self.quit.setEnabled(False)
 
     def togglePause(self):
         self.isPaused = not self.isPaused
+
+    def respawnPlayer(self):
+        self.player.respawn()
+        self.isPaused = False

@@ -50,6 +50,8 @@ class App:
         if event.type == pygame.KEYDOWN:
             key = event.key
             self.onKeyDown(key)
+        if event.type == pygame.MOUSEMOTION:
+            self.activeScene.onMouseMove(pygame.mouse.get_pos())
 
     def onKeyPress(self, keys, mods):
         self.activeScene.onKeyPress(keys, mods)

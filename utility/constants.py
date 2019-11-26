@@ -5,7 +5,7 @@ from game.item.item import ItemStack
 # Stores useful global constants
 class Constants:
     WORLD_HEIGHT = 101
-    WORLD_WIDTH = 201
+    WORLD_WIDTH = 501
     SEED_MAX = (1 << 16) - 1
 
     BLOCK_SIZE = 10
@@ -25,3 +25,5 @@ class Constants:
 
     INVENTORY_WIDTH = 9
     INVENTORY_HEIGHT = 5
+
+    FILTER = None

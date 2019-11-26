@@ -38,4 +38,6 @@ class Scene:
                 component.click()
 
     def onMouseScroll(self, scroll): pass
+    def onMouseMove(self, mousePos): pass
+
     def onTick(self): pass
