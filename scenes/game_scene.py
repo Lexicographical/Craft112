@@ -6,7 +6,7 @@ from components.label import Label
 from game.entity.player import Player
 from game.entity.enemy import Enemy
 from game.item.item import *
-from game.item.material import Material
+from game.item.material import *
 from game.world.world import World
 from game.world.position import Position
 from scenes.scene import Scene
@@ -35,6 +35,9 @@ class GameScene(Scene):
 
         self.offset = 5 # load outside canvas to hide buffering
         self.renderOffset = 7.6
+        self.holdPos = False
+        self.holdPosTickThresh = 30
+        self.holdPosTick = 0
 
     def initPlayer(self):
         self.player = Player(self.world)
@@ -177,6 +180,8 @@ class GameScene(Scene):
             if item.getType() != Material.AIR:
                 id = item.getType().getId()
                 texture = Assets.assets["textures"][id]
+                if item.getType() in Tools.tools:
+                    texture = texture[0]
                 tWidth, tHeight = texture.get_size()
                 tRect = pygame.Rect(0, 0, tWidth, tHeight)
                 tRect.center = rect.center
@@ -196,7 +201,8 @@ class GameScene(Scene):
         elif keys[pygame.K_d]:
             player.move(1, 0, walk=True)
         else:
-            player.faceDirection(0, 0)
+            if not self.holdPos:
+                player.faceDirection(0, False)
         player.update()
 
     def onKeyDown(self, key):
@@ -260,6 +266,9 @@ class GameScene(Scene):
             direction = 1
 
         dead = []
+        self.player.faceDirection(direction, False)
+        self.holdPos = True
+
         for entity in self.world.entities:
             if isinstance(entity, Enemy):
                 pPos = player.position
@@ -284,6 +293,11 @@ class GameScene(Scene):
     def onTick(self):
         if self.isPaused: return
         self.world.tick()
+        if self.holdPos:
+            self.holdPosTick += 1
+            if self.holdPosTick == self.holdPosTickThresh:
+                self.holdPosTick = 0
+                self.holdPos = False
         if not self.player.isAlive:
             self.isPaused = True
 

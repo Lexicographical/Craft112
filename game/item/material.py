@@ -19,3 +19,8 @@ class Material(Enum):
 
     def getValues(self):
         return self.value
+
+class Tools:
+    tools = set(
+        [Material.SWORD, Material.PICKAXE]
+    )

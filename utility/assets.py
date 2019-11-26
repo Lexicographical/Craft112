@@ -1,6 +1,6 @@
 import pygame
 from utility.constants import Constants
-from game.item.material import Material
+from game.item.material import *
 
 # Utility file for loading assets in the game
 class Assets:
@@ -40,7 +40,11 @@ class Assets:
             try:
                 id, transparent = material.getValues()
                 img = Assets.loadImage(f"{id}.png", folder="material", transparent=transparent)
-                assets["textures"][id] = img
+                if material in Tools.tools:
+                    reflected = pygame.transform.flip(img, 1, 0)
+                    assets["textures"][id] = [img, reflected]
+                else:
+                    assets["textures"][id] = img
             except:
                 print(f"Could not open {id}.png")
 

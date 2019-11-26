@@ -22,14 +22,15 @@ class Entity(pygame.sprite.Sprite):
         self.spriteRight = Assets.assets[spriteRight]
 
         self.rect = self.sprite.get_rect()
-        self.isLeft = False
-        self.isRight = False
+        self.isLeft = False, False
+        self.isRight = False, False
         self.isJumping = False
 
         self.velocity = [0, 0]
 
         self.jumpTick = 10
         self.walkTick = 0
+        self.spriteIndex = 0
 
         self.uuid = uuid.uuid4()
 
@@ -46,16 +47,16 @@ class Entity(pygame.sprite.Sprite):
         if self.velocity[1] == 0:
             self.velocity[1] += Constants.GRAVITY
 
-    def faceDirection(self, dx, dy):
-        if dx < 0 and dy == 0:
-            self.isLeft = True
-            self.isRight = False
-        elif dx > 0 and dy == 0:
-            self.isLeft = False
-            self.isRight = True
-        elif dx == 0 and dy == 0:
-            self.isLeft = False
-            self.isRight = False
+    def faceDirection(self, dx, moving):
+        if dx < 0:
+            self.isLeft = True, moving
+            self.isRight = False, False
+        elif dx > 0:
+            self.isLeft = False, False
+            self.isRight = True, moving
+        elif dx == 0:
+            self.isLeft = False, False
+            self.isRight = False, False
 
     def move(self, dx, dy, walk=False):
         xFactor = round(dx*0.2, 2)
@@ -70,7 +71,7 @@ class Entity(pygame.sprite.Sprite):
             self.position[0] -= xFactor
             return False
         if walk:
-            self.faceDirection(dx, dy)
+            self.faceDirection(dx, True)
         return True
 
     def jump(self):
@@ -146,14 +147,15 @@ class Entity(pygame.sprite.Sprite):
         spriteRect.center = (x, y+height/4)
 
         # animate sprite walk every other WALK_FACTOR ticks
-        spriteIndex = self.walkTick // Constants.WALK_FACTOR
-        if self.isLeft:
-            window.blit(self.spriteLeft[spriteIndex], spriteRect)
-        elif self.isRight:
-            window.blit(self.spriteRight[spriteIndex], spriteRect)
+        self.spriteIndex = self.walkTick // Constants.WALK_FACTOR
+        if self.isLeft[0]:
+            window.blit(self.spriteLeft[self.spriteIndex], spriteRect)
+            self.walkTick += self.isLeft[1]
+        elif self.isRight[0]:
+            window.blit(self.spriteRight[self.spriteIndex], spriteRect)
+            self.walkTick += self.isRight[1]
         else:
             window.blit(self.sprite, spriteRect)
-        self.walkTick += 1
 
         if self.walkTick >= len(self.spriteLeft) * Constants.WALK_FACTOR:
             self.walkTick = 0
