@@ -88,7 +88,7 @@ class App:
         self.running = False
 
     def playMusic(self):
-        soundtrack = pygame.mixer.Sound("assets/sounds/soundtrack.wav")
+        soundtrack = pygame.mixer.Sound("assets/sounds/soundtrack.ogg")
         thread = Thread(target=lambda: 
             pygame.mixer.Channel(0).play(soundtrack, loops=-1))
         thread.start()

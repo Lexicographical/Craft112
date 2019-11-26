@@ -62,13 +62,13 @@ class GameScene(Scene):
 
         resume = Button(window, width/2, 1.5*height/3,
                             font=textFont, text="Resume Game",
-                            fillColor=Color(255, 255, 255),
+                            fillColor=Colors.WHITE,
                             padding=10)
         resume.setOnClickListener(self.togglePause)
 
         quit = Button(window, width/2, 2*height/3,
                             font=textFont, text="Quit Game",
-                            fillColor=Color(255, 255, 255),
+                            fillColor=Colors.WHITE,
                             padding=10)
         quit.setOnClickListener(self.app.quit)
 
@@ -164,7 +164,7 @@ class GameScene(Scene):
             borderWidth = 1
             if i == self.player.equipIndex:
                 borderWidth = 3
-            pygame.draw.rect(self.app.window, Color(0, 0, 0), rect, borderWidth)
+            pygame.draw.rect(self.app.window, Colors.BLACK, rect, borderWidth)
             
             item = inventory[0][i]
             if item.getType() != Material.AIR:
@@ -263,7 +263,7 @@ class GameScene(Scene):
                 relativeDelta = math.copysign(1, ex-px)
                 distance = pPos.distance(ePos)
                 if relativeDelta == direction and distance <= damageReach:
-                    entity.damage(base_damage, relativeDelta, 0)
+                    entity.damage(base_damage, relativeDelta)
                     if not entity.isAlive:
                         dead.append(entity)
         for entity in dead:

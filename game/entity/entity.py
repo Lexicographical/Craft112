@@ -5,6 +5,7 @@ from utility.constants import Constants
 from utility.assets import Assets
 import uuid
 import math
+from utility.colors import Colors
 
 # Top level class for game entities
 class Entity(pygame.sprite.Sprite):
@@ -25,18 +26,23 @@ class Entity(pygame.sprite.Sprite):
         self.isRight = False
         self.isJumping = False
 
-        self.velocY = 0
+        self.velocity = [0, 0]
 
         self.jumpTick = 10
         self.walkTick = 0
 
         self.uuid = uuid.uuid4()
 
-    def damage(self, dmg, dx, dy):
+    def damage(self, dmg, dx):
         self.health -= dmg
+        self.doKnockback(dx)
         if self.health <= 0:
             self.health = 0
             self.isAlive = False
+
+    def doKnockback(self, dx):
+        self.velocity[0] += dx*Constants.GRAVITY
+        self.velocity[1] += Constants.GRAVITY
 
     def faceDirection(self, dx, dy):
         if dx < 0 and dy == 0:
@@ -69,44 +75,53 @@ class Entity(pygame.sprite.Sprite):
 
     def jump(self):
         if self.isJumping: return
-        self.velocY += Constants.GRAVITY*2
+        self.velocity[1] += Constants.GRAVITY*2
         self.isJumping = True
 
     def update(self):
         self.fall()
-        world = self.world
-        
-        if self.velocY != 0:
-            self.isJumping = True
-            sign = -1 if self.velocY < 0 else 1
-            if self.velocY < 1:
-                self.drop(sign)
-            else:
-                for _ in range(int(abs(self.velocY))):
-                    if self.drop(sign):
-                        break
-        else:
-            x, y = self.position
-            block = world.getBlock((x, y))
-            if block.getType() != Material.AIR:
-                self.position[1] += 1
+        self.updatePosition()
 
-    def drop(self, sign):
+    def updatePosition(self):
         world = self.world
-        self.position[1] += sign
+        for axis in range(len(self.velocity)):
+            velocity = self.velocity[axis]
+            if velocity != 0:
+                if axis == 1:
+                    self.isJumping = True
+                sign = math.copysign(1, velocity)
+                if abs(velocity) < 1:
+                    self.shift(axis, sign)
+                else:
+                    velocity = int(abs(velocity))
+                    for _ in range(velocity):
+                        if self.shift(axis, sign):
+                            break
+                if axis == 0:
+                    self.velocity[axis] -= Constants.AIR_RESISTANCE
+            else:
+                x, y = self.position
+                block = world.getBlock((x, y))
+                if block.getType() != Material.AIR:
+                    self.position[axis] += 1
+
+    def shift(self, axis, sign):
+        self.position[axis] += sign
         x, y = self.position
+        world = self.world
         block = world.getBlock((x, y))
         if block.getType() != Material.AIR:
-            self.velocY = 0
-            self.position[1] -= sign
-            self.isJumping = False
+            self.velocity[axis] = 0
+            self.position[axis] -= sign
+            if axis == 1:
+                self.isJumping = False
     
     def fall(self):
         x, y = self.position
         world = self.world
         block = world.getBlock((x, y-1))
         if block.getType() == Material.AIR:
-            self.velocY -= Constants.GRAVITY
+            self.velocity[1] -= Constants.GRAVITY
             return True
         return False
 
@@ -150,9 +165,9 @@ class Entity(pygame.sprite.Sprite):
         greenRect = pygame.Rect(0, 0, greenWidth, healthBarHeight)
         greenRect.topleft = rect.topleft
         
-        pygame.draw.rect(window, pygame.Color(255, 0, 0), rect)
-        pygame.draw.rect(window, pygame.Color(0, 255, 0), greenRect)
-        pygame.draw.rect(window, pygame.Color(0, 0, 0), rect, 1)
+        pygame.draw.rect(window, Colors.RED, rect)
+        pygame.draw.rect(window, Colors.GREEN, greenRect)
+        pygame.draw.rect(window, Colors.BLACK, rect, 1)
 
     def __hash__(self):
         return hash(self.uuid)
