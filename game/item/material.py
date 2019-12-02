@@ -20,7 +20,17 @@ class Material(Enum):
     def getValues(self):
         return self.value
 
+    def __hash__(self):
+        return hash(self.getValues())
+
+class MeleeWeapon:
+    def __init__(self, material, damage, reach):
+        self.material = material
+        self.damage = damage
+        self.reach = reach
+
 class Tools:
-    tools = set(
-        [Material.SWORD, Material.PICKAXE]
-    )
+    tools = {
+        Material.SWORD: MeleeWeapon(Material.SWORD, 5, 2),
+        Material.PICKAXE: None
+    }

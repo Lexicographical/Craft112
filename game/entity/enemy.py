@@ -18,7 +18,7 @@ class Enemy(Entity):
         if ePos.distance(pPos) <= self.followThreshold:
             ex = ePos[0]
             px = pPos[0]
-            dx = math.copysign(self.base_speed, px-ex)
+            dx = self.base_speed if px > ex else -self.base_speed
             collide = not self.move(dx, 0, walk=True)
             if collide:
                 self.jump()

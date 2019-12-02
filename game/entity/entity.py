@@ -6,13 +6,14 @@ from utility.assets import Assets
 import uuid
 import math
 from utility.colors import Colors
+from game.world.position import Position
 
 # Top level class for game entities
 class Entity(pygame.sprite.Sprite):
     def __init__(self, type, world, health, sprite, spriteLeft, spriteRight):
         super().__init__()
         self.type = type
-        self.position = [0, 0]
+        self.position = Position(0, 0)
         self.maxHealth = self.health = health
         self.isAlive = True
         self.world = world
@@ -90,7 +91,7 @@ class Entity(pygame.sprite.Sprite):
             if velocity != 0:
                 if axis == 1:
                     self.isJumping = True
-                sign = math.copysign(1, velocity)
+                sign = 1 if velocity > 0 else -1
 
                 if abs(velocity) < 1:
                     self.shift(axis, sign)
@@ -102,7 +103,7 @@ class Entity(pygame.sprite.Sprite):
 
                 if axis == 0:
                     self.velocity[axis] -= sign*Constants.AIR_RESISTANCE
-                    if math.copysign(1, self.velocity[axis]*sign) == -1:
+                    if self.velocity[axis]*sign < 0:
                         self.velocity[axis] = 0
             else:
                 x, y = self.position

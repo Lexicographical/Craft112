@@ -39,12 +39,6 @@ class World:
 
     def generateWorld(self):
         elevation = self.generateElevations()
-        # elevation = [0]*self.width
-        # for i in range(self.width):
-        #     if i & 3:
-        #         elevation[i] = -1
-        #     else:
-        #         elevation[i] = 1
         for j in range(self.height):
             self.blocks.append([])
             for i in range(self.width):
@@ -52,11 +46,13 @@ class World:
         for i in range(self.width):
             for j in range(self.height):
                 x, y = self.indexToCoordinate((i, j))
-                blockType = Material.DIRT
+                blockType = Material.STONE
                 if y == int(elevation[i]):
                     blockType = Material.GRASS
                 elif y > elevation[i]:
                     blockType = Material.AIR
+                elif y > elevation[i] - 5:
+                    blockType = Material.DIRT
                 self.blocks[j][i] = Block(blockType, x, y)
 
         print("World Size:", len(self.blocks), len(self.blocks[0]))
@@ -70,19 +66,16 @@ class World:
         return (x + self.wOffset, y + self.hOffset)
     
     def setBlock(self, blockType, coordinate):
-        i, j = [int(k) for k in self.coordinateToIndex(coordinate)]
+        i, j = [Utility.round(k) for k in coordinate]
+        i, j = self.coordinateToIndex((i, j))
         self.blocks[j][i] = Block(blockType, i, j)
 
-    def getBlock(self, coordinate, coord=False):
+    def getBlock(self, coordinate):
         i, j = [Utility.round(k) for k in coordinate]
         i, j = self.coordinateToIndex((i, j))
         if i < 0 or i >= self.width or j < 0 or j >= self.height:
-            if coord:
-                return Constants.AIR_BLOCK, (i, j)
             return Constants.AIR_BLOCK
         block = self.blocks[j][i]
-        if coord:
-            return block, (i, j)
         return block
 
     def getHighestBlock(self, x):
@@ -99,7 +92,7 @@ class World:
         if spawn or (len(self.entities) <= 3 and chance < self.spawnChance):
             x, _ = player.position
             chance = random.random()
-            sign = math.copysign(1, chance - 0.5)
+            sign = 1 if chance > 0.5 else -1
             chance = (chance + 0.5) if chance < 0.5 else chance
             offset = chance * 5
             x += sign * (3 + offset)

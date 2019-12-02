@@ -34,9 +34,9 @@ class Player(Entity):
         material = item.getType()
         id = material.getId()
         if material in Tools.tools:
-            texture, reflected = Assets.assets["textures"][id]
+            texture, alt = Assets.assets["textures"][id]
         else:
-            texture = reflected = Assets.assets["textures"][id]
+            texture = alt = Assets.assets["textures"][id][1]
 
         width, height = texture.get_size()
         pHeight = self.sprite.get_size()[1]
@@ -50,7 +50,7 @@ class Player(Entity):
             rect = pygame.Rect(0, 0, width, height)
             rect.center = (x + offset[self.isRight[0]][self.spriteIndex], y + vOffset)
             if self.isLeft[0]:
-                window.blit(reflected, rect)
+                window.blit(alt, rect)
                 super().draw(window, x, y)
             elif self.isRight[0]:
                 super().draw(window, x, y)

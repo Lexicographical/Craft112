@@ -6,7 +6,6 @@ from game.item.material import *
 class Assets:
     assets = {}
 
-    # TODO: make connecting background
     @staticmethod
     def loadAssets(app):
         assets = {}
@@ -43,11 +42,13 @@ class Assets:
             try:
                 id, transparent = material.getValues()
                 img = Assets.loadImage(f"{id}.png", folder="material", transparent=transparent)
+
                 if material in Tools.tools:
                     reflected = pygame.transform.flip(img, 1, 0)
                     assets["textures"][id] = [img, reflected]
                 else:
-                    assets["textures"][id] = img
+                    small = pygame.transform.scale(img, (16, 16))
+                    assets["textures"][id] = [img, small]
             except:
                 print(f"Could not open {id}.png")
 

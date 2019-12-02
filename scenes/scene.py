@@ -6,6 +6,7 @@ from components.clickable import Clickable
 class Scene:
     def __init__(self, app):
         self.app = app
+        self.window = self.app.window
         self.components = set()
 
     def addComponent(self, component):
@@ -22,7 +23,8 @@ class Scene:
 
     def drawComponents(self):
         for component in self.components:
-            component.draw()
+            if component.isEnabled:
+                component.draw()
 
     def onKeyPress(self, keys, mods):
         if keys[pygame.K_q] and (mods & pygame.KMOD_CTRL):
@@ -30,12 +32,14 @@ class Scene:
 
     def onKeyDown(self, event): pass
 
-    def onMouseClick(self, mousePos): 
+    def onMouseClick(self, mousePos):
         for component in self.components:
             if (isinstance(component, Clickable) and 
                 component.isClicked(mousePos) and
                 component.isEnabled):
                 component.click()
+
+    def onMouseRightClick(self, mousePos): pass
 
     def onMouseScroll(self, scroll): pass
     def onMouseMove(self, mousePos): pass

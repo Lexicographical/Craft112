@@ -42,8 +42,10 @@ class App:
         if event.type == pygame.QUIT:
             self.running = False
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button in [1, 3]:
+            if event.button == 1:
                 self.activeScene.onMouseClick(event.pos)
+            if event.button == 3:
+                self.activeScene.onMouseRightClick(event.pos)
             elif event.button in [4, 5]:
                 scroll = 1 if event.button == 4 else -1
                 self.activeScene.onMouseScroll(scroll)

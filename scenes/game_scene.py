@@ -52,15 +52,16 @@ class GameScene(Scene):
         self.world.addEntity(self.player)
  
     def initComponents(self):
-        textFont = pygame.font.Font(Fonts.Courier, 30)
-        self.label = Label(self.app.window, 0, 0, text="(0, 0)", font=textFont)
+        textFont = Fonts.getFont(Fonts.Courier, 30)
+        self.label = Label(self.window, 0, 0, text="(0, 0)", font=textFont)
         rect = self.label.label.get_rect()
         width, height = rect.width, rect.height
         self.label.x = self.app.width - width
         self.label.y = height/2
+        self.label.setEnabled(False)
         self.addComponent(self.label)
 
-        window = self.app.window
+        window = self.window
         width, height = self.app.width, self.app.height
 
         self.respawn = Button(window, width/2, 1.5*height/3,
@@ -92,13 +93,12 @@ class GameScene(Scene):
         self.drawTerrain()
         self.drawEntities()
         self.drawInventory()
-        self.drawEquipped()
         self.drawOverlay()
 
         super().drawComponents()
 
     def drawBackground(self):
-        window = self.app.window
+        window = self.window
         player = self.player
         bg = Assets.assets["gradient"]
         bgSize = bg.get_size()
@@ -136,8 +136,8 @@ class GameScene(Scene):
                 self.drawBlock(block, (renderX, renderY))
 
     def drawBlock(self, block, position):
-        window = self.app.window
-        texture = Assets.assets["textures"][block.getType().getId()]
+        window = self.window
+        texture = Assets.assets["textures"][block.getType().getId()][0]
         
         x, y = position
         size = Constants.blockSize
@@ -149,7 +149,7 @@ class GameScene(Scene):
     def drawEntities(self):
         self.label.setText(str(self.player.getPosition()))
 
-        window = self.app.window
+        window = self.window
         world = self.world
         px, py = self.player.position
         cx, cy = self.app.width/2, self.app.height/2
@@ -163,7 +163,7 @@ class GameScene(Scene):
             entity.draw(window, rx, ry)
 
     def drawInventory(self):
-        window = self.app.window
+        window = self.window
         inventory = self.player.getInventory()
         width = inventory.getDimensions()[0]
 
@@ -174,7 +174,7 @@ class GameScene(Scene):
             borderWidth = 1
             if i == self.player.equipIndex:
                 borderWidth = 3
-            pygame.draw.rect(self.app.window, Colors.BLACK, rect, borderWidth)
+            pygame.draw.rect(self.window, Colors.BLACK, rect, borderWidth)
             
             item = inventory[0][i]
             if item.getType() != Material.AIR:
@@ -182,19 +182,25 @@ class GameScene(Scene):
                 texture = Assets.assets["textures"][id]
                 if item.getType() in Tools.tools:
                     texture = texture[0]
+                else:
+                    texture = texture[1]
                 tWidth, tHeight = texture.get_size()
                 tRect = pygame.Rect(0, 0, tWidth, tHeight)
                 tRect.center = rect.center
                 window.blit(texture, tRect)
 
                 amount = item.getAmount()
-                if amount > 1:
-                    print("More than 1")
-  
-    # TODO: implement
-    def drawEquipped(self):
-        pass
+                self.drawItemCount(amount, tRect)
 
+    def drawItemCount(self, amount, rect):
+        font = Fonts.getFont(Fonts.Courier, 20)
+        if amount > 1:
+            window = self.window
+            x, y = rect.bottomright
+            countLabel = Label(window, x, y, str(amount), font,
+                                color=Colors.BLACK)
+            countLabel.draw()
+  
     def onKeyPress(self, keys, mods):
         super().onKeyPress(keys, mods)
         if self.isPaused: return
@@ -233,7 +239,19 @@ class GameScene(Scene):
         if item.getType() == Material.PICKAXE:
             self.breakBlock(mousePos)
         elif item.getType() == Material.SWORD:
-            self.damageEntity(mousePos)
+            self.attack(mousePos, item)
+
+    def onMouseRightClick(self, mousePos):
+        player = self.player
+        if player.getEquippedItem() not in Tools.tools:
+            _, bx, by = self.getBlockFromMousePos(mousePos)
+            world = self.world
+            item = player.getEquippedItem()
+            world.setBlock(item.getType(), (bx, by))
+            item.setAmount(item.getAmount() - 1)
+            if item.getAmount() == 0:
+                item.material = Material.AIR
+                item.amount = 1
 
     # TODO: improve accuracy
     def getBlockFromMousePos(self, mousePos):
@@ -241,10 +259,10 @@ class GameScene(Scene):
         px, py = self.player.position
         size = Constants.blockSize
         height, width = self.previewHeight, self.previewWidth
-        xOffset = 0
+        offset = 0.5
 
-        x = rx/size + (abs(px) % 1) - width - xOffset
-        y = ry/size + (abs(py) % 1) - height + self.renderOffset
+        x = rx/size + (abs(px) % 1) - width - offset
+        y = ry/size + (abs(py) % 1) - height + self.renderOffset - offset
 
         bx = px + x
         by = py - y
@@ -254,24 +272,23 @@ class GameScene(Scene):
 
     def breakBlock(self, mousePos):
         block, bx, by = self.getBlockFromMousePos(mousePos)
-        x, y = block.getPosition()
+        print("Breaking block", block.getType(), (bx, by))
         self.world.setBlock(Material.AIR, (bx, by))
         self.player.getInventory().addItem(ItemStack(block.getType(), 1))
 
-    def damageEntity(self, mousePos):
+    def attack(self, mousePos, item):
         mx = mousePos[0]
         cx = self.app.width/2
         player = self.player
-        direction = -1
-        damageReach = 2
-        base_damage = 5
-
-        if mx > cx:
-            direction = 1
+        direction = 1 if mx > cx else -1
 
         dead = []
         self.player.faceDirection(direction, False)
         self.holdPos = True
+
+        weapon = Tools.tools[item.getType()]
+        damage = weapon.damage
+        reach = weapon.reach
 
         for entity in self.world.entities:
             if isinstance(entity, Enemy):
@@ -280,10 +297,10 @@ class GameScene(Scene):
                 
                 px, ex = pPos[0], ePos[0]
 
-                relativeDelta = math.copysign(1, ex-px)
+                relativeDelta = 1 if ex > px else -1
                 distance = pPos.distance(ePos)
-                if relativeDelta == direction and distance <= damageReach:
-                    entity.damage(base_damage, relativeDelta)
+                if relativeDelta == direction and distance <= reach:
+                    entity.damage(damage, relativeDelta)
                     if not entity.isAlive:
                         dead.append(entity)
         for entity in dead:
@@ -312,11 +329,11 @@ class GameScene(Scene):
             Constants.FILTER.fill((255, 255, 255))
 
         if not self.player.isAlive:
-            self.app.window.blit(Constants.FILTER, (0, 0))
+            self.window.blit(Constants.FILTER, (0, 0))
             self.respawn.setEnabled(True)
             self.quit.setEnabled(True)
         elif self.isPaused:
-            self.app.window.blit(Constants.FILTER, (0, 0))
+            self.window.blit(Constants.FILTER, (0, 0))
             self.resume.setEnabled(True)
             self.quit.setEnabled(True)
         else:

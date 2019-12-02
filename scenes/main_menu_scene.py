@@ -13,8 +13,8 @@ class MainMenuScene(Scene):
         self.initComponents()
 
     def initComponents(self):
-        textFont = pygame.font.Font(Fonts.Courier, 30)
-        window = self.app.window
+        textFont = Fonts.getFont(Fonts.Courier, 30)
+        window = self.window
         height, width = self.app.height, self.app.width
         title = Label(window, width/2, 0.5*height/3,
                             font=textFont, text="Craft112")
@@ -36,7 +36,7 @@ class MainMenuScene(Scene):
         super().drawComponents()
 
     def drawBackground(self):
-        window = self.app.window
+        window = self.window
         bg = Assets.assets["background"]
         window.blit(bg, (0, 0))
 
