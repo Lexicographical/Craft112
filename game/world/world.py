@@ -10,6 +10,7 @@ from game.entity.entity import *
 from game.entity.player import Player
 
 # World stores all the in-game information about the current world
+# TODO: do noise generation on your own
 class World:
     def __init__(self):
         self.seed = random.randrange(1, Constants.SEED_MAX)
@@ -24,8 +25,9 @@ class World:
         self.player = None
 
         self.clockTick = 0
-        self.spawnTickRate = 5
-        self.spawnChance = 0.1
+        self.spawnTickRate = 10
+        self.spawnChances = [0, 0.01, 0.05, 0.1]
+        self.difficulty = 2
 
     def generateElevations(self):
         elevation = [0] * self.width
@@ -89,7 +91,7 @@ class World:
 
     def rngSpawnEntity(self, player, spawn=False):
         chance = random.random()
-        if spawn or (len(self.entities) <= 3 and chance < self.spawnChance):
+        if spawn or (len(self.entities) <= 3 and chance < self.spawnChances[self.difficulty]):
             x, _ = player.position
             chance = random.random()
             sign = 1 if chance > 0.5 else -1
@@ -114,9 +116,19 @@ class World:
     def tick(self):
         self.clockTick += 1
         if self.clockTick % self.spawnTickRate == 0:
-            pass
-            # self.rngSpawnEntity(self.player)
+            # pass
+            self.rngSpawnEntity(self.player)
         for entity in self.entities:
             entity.update()
             if isinstance(entity, Enemy):
                 entity.ai(self.player)
+
+    def setDifficulty(self, difficulty):
+        self.difficulty = difficulty
+        if difficulty == 0:
+            ls = []
+            for entity in self.entities:
+                if not isinstance(entity, Player):
+                    ls.append(entity)
+            for entity in ls:
+                self.entities.remove(entity)

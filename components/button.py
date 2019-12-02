@@ -20,17 +20,25 @@ class Button(Clickable, Component):
         self.textColor = textColor
         self.label = None
         self.padding = padding
+        self.text = text
 
         if text is not None:
-            self.label = Label(self.window, self.x, self.y, text, self.font,
-                               color=self.textColor)
-            rect = self.label.label.get_rect()
-            self.width, self.height = rect.width, rect.height
-            self.width += 2*padding
-            self.height += 2*padding
+            self.initText()
 
     def draw(self):
         if not self.isEnabled: return
         super().draw()
         if self.label is not None:
             self.label.draw()
+
+    def setText(self, text):
+        self.text = text
+        self.initText()
+
+    def initText(self):
+        self.label = Label(self.window, self.x, self.y, self.text, self.font,
+                               color=self.textColor)
+        rect = self.label.label.get_rect()
+        self.width, self.height = rect.width, rect.height
+        self.width += 2*self.padding
+        self.height += 2*self.padding

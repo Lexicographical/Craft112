@@ -29,6 +29,9 @@ class App:
         self.changeScene("main")
         self.running = True
 
+        self.volumeOn = True
+        self.musicChannel = pygame.mixer.Channel(0)
+
     def initializeScenes(self):
         self.scenes = {
             "main": MainMenuScene(self),
@@ -93,8 +96,9 @@ class App:
 
     def playMusic(self):
         soundtrack = pygame.mixer.Sound("assets/sounds/soundtrack.ogg")
+        self.musicChannel.set_volume(1)
         thread = Thread(target=lambda: 
-            pygame.mixer.Channel(0).play(soundtrack, loops=-1))
+            self.musicChannel.play(soundtrack, loops=-1))
         thread.start()
 
 if __name__ == "__main__":

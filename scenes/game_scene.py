@@ -1,7 +1,7 @@
 import math
 import pygame
-from pygame.color import Color
 from components.button import Button
+from components.imagebutton import ImageButton
 from components.label import Label
 from game.entity.player import Player
 from game.entity.enemy import Enemy
@@ -21,6 +21,7 @@ class GameScene(Scene):
         super().__init__(app)
         self.initGame()
         self.initComponents()
+        self.initOverlay()
 
         self.isPaused = False
 
@@ -38,6 +39,9 @@ class GameScene(Scene):
         self.holdPos = False
         self.holdPosTickThresh = 30
         self.holdPosTick = 0
+
+        self.difficulty = 2
+        self.difficultyLabels = ["Peaceful", "Easy", "Normal", "Hard"]
 
     def initPlayer(self):
         self.player = Player(self.world)
@@ -61,32 +65,50 @@ class GameScene(Scene):
         self.label.setEnabled(False)
         self.addComponent(self.label)
 
+    # TODO: add option for difficulty and volume
+    def initOverlay(self):
+        textFont = Fonts.getFont(Fonts.Courier, 30)
         window = self.window
         width, height = self.app.width, self.app.height
 
-        self.respawn = Button(window, width/2, 1.5*height/3,
+        unit = height/4
+
+        self.volumeButton = ImageButton(window, 2*width/3, 1.6*unit,
+                                  Assets.assets["volume_on"],
+                                  fillColor=Colors.WHITE)
+        self.volumeButton.setOnClickListener(self.toggleVolume)
+
+        self.respawnButton = Button(window, width/2, 2*unit,
                             font=textFont, text="Respawn",
                             fillColor=Colors.WHITE,
                             padding=10)
-        self.respawn.setOnClickListener(self.respawnPlayer)
+        self.respawnButton.setOnClickListener(self.respawnPlayer)
 
-        self.resume = Button(window, width/2, 1.5*height/3,
+        self.resumeButton = Button(window, width/2, 2*unit,
                             font=textFont, text="Resume Game",
                             fillColor=Colors.WHITE,
                             padding=10)
-        self.resume.setOnClickListener(self.togglePause)
+        self.resumeButton.setOnClickListener(self.togglePause)
 
-        self.quit = Button(window, width/2, 2*height/3,
+        self.difficultyButton = Button(window, width/2, 2.5*unit,
+                            font=textFont, text="Difficulty: Normal",
+                            fillColor=Colors.WHITE,
+                            padding=10)
+        self.difficultyButton.setOnClickListener(self.cycleDifficulty)
+
+        self.quitButton = Button(window, width/2, 3*unit,
                             font=textFont, text="Quit Game",
                             fillColor=Colors.WHITE,
                             padding=10)
-        self.quit.setOnClickListener(self.app.quit)  
+        self.quitButton.setOnClickListener(self.app.quit)  
 
-        self.respawn.setEnabled(False)
-        self.resume.setEnabled(False)
-        self.quit.setEnabled(False)
+        self.overlayComponents = [self.resumeButton, self.quitButton, self.respawnButton,
+                                  self.volumeButton, self.difficultyButton]
 
-        self.addComponents([self.resume, self.quit, self.respawn])
+        for component in self.overlayComponents:
+            component.setEnabled(False)
+
+        self.addComponents(self.overlayComponents)
 
     def drawComponents(self):
         self.drawBackground()
@@ -253,7 +275,6 @@ class GameScene(Scene):
                 item.material = Material.AIR
                 item.amount = 1
 
-    # TODO: improve accuracy
     def getBlockFromMousePos(self, mousePos):
         rx, ry = mousePos
         px, py = self.player.position
@@ -328,22 +349,35 @@ class GameScene(Scene):
             Constants.FILTER.set_alpha(100)
             Constants.FILTER.fill((255, 255, 255))
 
+        for component in self.overlayComponents:
+            enabled = not self.player.isAlive or self.isPaused
+            component.setEnabled(enabled)
+
         if not self.player.isAlive:
             self.window.blit(Constants.FILTER, (0, 0))
-            self.respawn.setEnabled(True)
-            self.quit.setEnabled(True)
+            self.resumeButton.setEnabled(False)
         elif self.isPaused:
             self.window.blit(Constants.FILTER, (0, 0))
-            self.resume.setEnabled(True)
-            self.quit.setEnabled(True)
-        else:
-            self.respawn.setEnabled(False)
-            self.resume.setEnabled(False)
-            self.quit.setEnabled(False)
+            self.respawnButton.setEnabled(False)
 
     def togglePause(self):
         self.isPaused = not self.isPaused
+        self.world.setDifficulty(self.difficulty)
+
+    def toggleVolume(self):
+        self.app.volumeOn = not self.app.volumeOn
+        if self.app.volumeOn:
+            self.volume.setImage(Assets.assets["volume_on"])
+            self.app.musicChannel.set_volume(1)
+        else:
+            self.volume.setImage(Assets.assets["volume_off"])
+            self.app.musicChannel.set_volume(0)
 
     def respawnPlayer(self):
         self.player.respawn()
         self.isPaused = False
+
+    def cycleDifficulty(self):
+        self.difficulty = (self.difficulty + 1) % 4
+        self.difficultyButton.setText(f"Difficulty: {self.difficultyLabels[self.difficulty]}")
+

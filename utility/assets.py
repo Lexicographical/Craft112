@@ -52,6 +52,9 @@ class Assets:
             except:
                 print(f"Could not open {id}.png")
 
+        assets["volume_on"] = Assets.loadImage("volume_on.png")
+        assets["volume_off"] = Assets.loadImage("volume_off.png")
+
         Assets.assets = assets
 
     @staticmethod
