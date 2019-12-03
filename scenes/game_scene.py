@@ -14,6 +14,7 @@ from utility.assets import Assets
 from utility.colors import Colors
 from utility.constants import Constants
 from utility.fonts import Fonts
+from utility.utility import Utility
 
 # Scene to display the gameplay
 class GameScene(Scene):
@@ -65,7 +66,6 @@ class GameScene(Scene):
         self.label.setEnabled(False)
         self.addComponent(self.label)
 
-    # TODO: add option for difficulty and volume
     def initOverlay(self):
         textFont = Fonts.getFont(Fonts.Courier, 30)
         window = self.window
@@ -97,10 +97,10 @@ class GameScene(Scene):
         self.difficultyButton.setOnClickListener(self.cycleDifficulty)
 
         self.quitButton = Button(window, width/2, 3*unit,
-                            font=textFont, text="Quit Game",
+                            font=textFont, text="Main Menu",
                             fillColor=Colors.WHITE,
                             padding=10)
-        self.quitButton.setOnClickListener(self.app.quit)  
+        self.quitButton.setOnClickListener(self.quit)  
 
         self.overlayComponents = [self.resumeButton, self.quitButton, self.respawnButton,
                                   self.volumeButton, self.difficultyButton]
@@ -256,6 +256,7 @@ class GameScene(Scene):
 
     def onMouseClick(self, mousePos):
         super().onMouseClick(mousePos)
+        if self.isPaused: return
         item = self.player.getEquippedItem()
 
         if item.getType() == Material.PICKAXE:
@@ -264,8 +265,9 @@ class GameScene(Scene):
             self.attack(mousePos, item)
 
     def onMouseRightClick(self, mousePos):
+        if self.isPaused: return
         player = self.player
-        if player.getEquippedItem() not in Tools.tools:
+        if player.getEquippedItem().getType() not in Tools.tools:
             _, bx, by = self.getBlockFromMousePos(mousePos)
             world = self.world
             item = player.getEquippedItem()
@@ -287,13 +289,11 @@ class GameScene(Scene):
 
         bx = px + x
         by = py - y
-        print(x, y, bx, by)
         block = self.world.getBlock((bx, by))
         return block, bx, by
 
     def breakBlock(self, mousePos):
         block, bx, by = self.getBlockFromMousePos(mousePos)
-        print("Breaking block", block.getType(), (bx, by))
         self.world.setBlock(Material.AIR, (bx, by))
         self.player.getInventory().addItem(ItemStack(block.getType(), 1))
 
@@ -381,3 +381,6 @@ class GameScene(Scene):
         self.difficulty = (self.difficulty + 1) % 4
         self.difficultyButton.setText(f"Difficulty: {self.difficultyLabels[self.difficulty]}")
 
+    def quit(self):
+        Utility.save(self.world)
+        self.app.changeScene("main")

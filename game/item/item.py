@@ -1,13 +1,13 @@
 from enum import Enum
 from game.item.material import Material
 import uuid
+from game.serializable import Serializable
 
 # An itemstack represents a stack of `amount` items of type `material`
-class ItemStack:
+class ItemStack(Serializable):
     def __init__(self, material, amount):
         self.material = material
         self.amount = amount
-        self.uuid = uuid.uuid4()
 
     def getType(self):
         return self.material
@@ -18,5 +18,8 @@ class ItemStack:
     def setAmount(self, amount):
         self.amount = amount
 
-    def __hash__(self):
-        return hash(self.uuid)
+    def getSerializable(self):
+        return {
+            "material": self.material,
+            "amount": self.amount,
+        }

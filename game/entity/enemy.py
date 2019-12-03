@@ -3,9 +3,9 @@ import math
 
 # Enemies are entities that will follow and attack the player
 class Enemy(Entity):
-    def __init__(self, entityType, world, health,
+    def __init__(self, entityType, world,
                  sprite, spriteLeft, spriteRight, damage):
-        super().__init__(entityType, world, health,
+        super().__init__(entityType, world,
                           sprite, spriteLeft, spriteRight)
 
         self.base_damage = damage

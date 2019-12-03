@@ -10,9 +10,14 @@ from game.world.position import Position
 # Players are controllable entities 
 class Player(Entity):
     def __init__(self, world):
-        super().__init__(Entities.PLAYER, world, 20, "player", "playerLeft", "playerRight")
+        super().__init__(Entities.PLAYER, world, "player", "playerLeft", "playerRight")
         self.inventory = Inventory(Constants.INVENTORY_WIDTH, Constants.INVENTORY_HEIGHT)
         self.equipIndex = 0
+
+    def getSerializables(self):
+        dct = super().getSerializables()
+        dct[self.uuid]["inventory"] = [[item.getSerializables() for item in row] for row in self.inventory]
+        return dct
     
     def getInventory(self):
         return self.inventory

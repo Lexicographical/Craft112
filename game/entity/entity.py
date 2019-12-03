@@ -7,14 +7,16 @@ import uuid
 import math
 from utility.colors import Colors
 from game.world.position import Position
+from game.serializable import Serializable
 
 # Top level class for game entities
-class Entity(pygame.sprite.Sprite):
-    def __init__(self, type, world, health, sprite, spriteLeft, spriteRight):
+class Entity(pygame.sprite.Sprite, Serializable):
+    def __init__(self, type, world, sprite, spriteLeft, spriteRight):
         super().__init__()
         self.type = type
         self.position = Position(0, 0)
-        self.maxHealth = self.health = health
+        self.maxHealth = self.type.getMaxHealth()
+        self.health = self.maxHealth
         self.isAlive = True
         self.world = world
 
@@ -29,11 +31,21 @@ class Entity(pygame.sprite.Sprite):
 
         self.velocity = [0, 0]
 
-        self.jumpTick = 10
         self.walkTick = 0
         self.spriteIndex = 0
 
-        self.uuid = uuid.uuid4()
+        self.uuid = str(uuid.uuid4())
+
+    def getSerializables(self):
+        dct = {
+            self.uuid: {
+                "type": self.type.getType(),
+                "health": self.health,
+                "position": self.position,
+                "velocity": self.velocity
+            }
+        }
+        return dct
 
     def damage(self, dmg, dx):
         self.health -= dmg
@@ -181,5 +193,11 @@ class Entity(pygame.sprite.Sprite):
 
 # List of all entity types
 class Entities(Enum):
-    PLAYER = "player"
-    ENEMY = "enemy"
+    PLAYER = "player", 20
+    ENEMY = "enemy", 20
+
+    def getType(self):
+        return self.value[0]
+    
+    def getMaxHealth(self):
+        return self.value[1]

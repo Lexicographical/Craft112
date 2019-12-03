@@ -8,12 +8,15 @@ from utility.utility import Utility
 from game.entity.enemy import Enemy
 from game.entity.entity import *
 from game.entity.player import Player
+from game.serializable import Serializable
 
 # World stores all the in-game information about the current world
 # TODO: do noise generation on your own
-class World:
-    def __init__(self):
-        self.seed = random.randrange(1, Constants.SEED_MAX)
+class World(Serializable):
+    def __init__(self, name="world", seed=None):
+        self.name = name
+        if seed is None:
+            self.seed = random.randrange(1, Constants.SEED_MAX)
         self.width = Constants.WORLD_WIDTH
         self.height = Constants.WORLD_HEIGHT
         
@@ -28,6 +31,18 @@ class World:
         self.spawnTickRate = 10
         self.spawnChances = [0, 0.01, 0.05, 0.1]
         self.difficulty = 2
+
+    def getSerializables(self):
+        dct = {
+            "name": self.name,
+            "seed": self.seed,
+            "width": self.width,
+            "height": self.height,
+            "difficulty": self.difficulty,
+            "entities": [entity.getSerializables() for entity in self.entities],
+            "blocks": [[block.getSerializables() for block in row] for row in self.blocks]
+        }
+        return dct
 
     def generateElevations(self):
         elevation = [0] * self.width
@@ -102,8 +117,8 @@ class World:
             self.spawnEntity(Position(x, y))
             
     def spawnEntity(self, position):
-        enemy = Enemy(Entities.ENEMY, self, 20,
-                        "enemy", "enemyLeft", "enemyRight", 1)
+        enemy = Enemy(Entities.ENEMY, self,
+                      "enemy", "enemyLeft", "enemyRight", 1)
         enemy.setPosition(position)
         self.addEntity(enemy)
 
@@ -112,11 +127,9 @@ class World:
         if isinstance(entity, Player):
             self.player = entity
 
-    # TODO: re-add rng spawning
     def tick(self):
         self.clockTick += 1
         if self.clockTick % self.spawnTickRate == 0:
-            # pass
             self.rngSpawnEntity(self.player)
         for entity in self.entities:
             entity.update()
