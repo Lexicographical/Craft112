@@ -25,6 +25,9 @@ class ItemStack(Serializable):
         }
         return dct
 
+    def __repr__(self):
+        return f"ItemStack<Material: {self.material.getName()}, Amount: {self.amount}>"
+
     @staticmethod
     def fromJson(json):
         return ItemStack(Material.fromId(json["material"]), json["amount"])

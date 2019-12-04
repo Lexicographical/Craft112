@@ -1,4 +1,5 @@
 from utility.constants import Constants
+from game.item.material import Material
 
 # Inventory contains an MxN list of itemstacks
 class Inventory:
@@ -14,7 +15,7 @@ class Inventory:
                 if self.contents[i][j].getType() == itemStack.getType():
                     self.contents[i][j].amount += 1
                     return True
-                if self.contents[i][j] == Constants.EMPTY_ITEM:
+                if self.contents[i][j].getType() == Material.AIR:
                     self.contents[i][j] = itemStack
                     return True
         return False
