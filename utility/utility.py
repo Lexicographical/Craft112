@@ -33,13 +33,12 @@ class Utility:
     @staticmethod
     def loadWorlds():
         ls = []
-        if os.path.exists("saves"):
-            for i in range(1, 4):
-                try:
-                    world = Utility.loadWorld(f"saves/World {i}.world")
-                except:
-                    world = None
-                ls.append(world)
+        for i in range(1, 4):
+            try:
+                world = Utility.loadWorld(f"saves/World {i}.world")
+            except:
+                world = None
+            ls.append(world)
         return ls
 
     @staticmethod

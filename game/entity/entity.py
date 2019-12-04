@@ -1,24 +1,34 @@
-import pygame
-from enum import Enum
-from game.item.material import Material
-from utility.constants import Constants
-from utility.assets import Assets
-import uuid
 import math
-from utility.colors import Colors
-from game.world.vector2d import Vector2D
+import uuid
+from enum import Enum
+from threading import Timer
+import pygame
+from game.item.material import Material
 from game.serializable import Serializable
+from game.world.vector2d import Vector2D
+from utility.assets import Assets
+from utility.colors import Colors
+from utility.constants import Constants
+
 
 # Top level class for game entities
 class Entity(pygame.sprite.Sprite, Serializable):
     def __init__(self, type, world):
         super().__init__()
         self.type = type
+        self.world = world
+
         self.position = Vector2D(0, 0)
+        self.velocity = Vector2D(0, 0)
+
         self.maxHealth = self.type.getMaxHealth()
         self.health = self.maxHealth
+
         self.isAlive = True
-        self.world = world
+        self.isBurning = False
+        self.isFrozen = False
+
+        self.statusTick = 0
 
         sprite, spriteLeft, spriteRight = type.getSpriteLabels()
 
@@ -31,25 +41,47 @@ class Entity(pygame.sprite.Sprite, Serializable):
         self.isRight = False, False
         self.isJumping = False
 
-        self.velocity = Vector2D(0, 0)
-
         self.walkTick = 0
         self.spriteIndex = 0
 
         self.uuid = str(uuid.uuid4())
 
-    def damage(self, dmg, dx):
+    def damage(self, dmg, dx, knockback=True):
         self.health -= dmg
-        self.doKnockback(dx)
+        if knockback:
+            self.doKnockback(dx)
         if self.health <= 0:
             self.health = 0
             self.isAlive = False
+            self.world.removeEntity(self)
 
     def doKnockback(self, dx):
         if self.velocity[0] == 0:
             self.velocity[0] += dx*Constants.GRAVITY
         if self.velocity[1] == 0:
             self.velocity[1] += Constants.GRAVITY
+
+    def burn(self):
+        self.isFrozen = False
+        self.isBurning = True
+        self.statusTick = 5
+        self.updateStatus()
+
+    def freeze(self):
+        self.isBurning = False
+        self.isFrozen = True
+        self.statusTick = 5
+        self.updateStatus()
+
+    def updateStatus(self):
+        self.statusTick -= 1
+        if self.isBurning:
+            self.damage(Constants.BURN_DAMAGE, 0, knockback=True)
+        if self.statusTick > 0:
+            Timer(1, self.updateStatus, ()).start()
+        else:
+            self.isBurning = False
+            self.isFrozen = False
 
     def faceDirection(self, dx, moving):
         if dx < 0:
@@ -63,6 +95,7 @@ class Entity(pygame.sprite.Sprite, Serializable):
             self.isRight = False, False
 
     def move(self, dx, dy, walk=False):
+        if self.isFrozen: return True
         xFactor = round(dx*0.2, 2)
 
         self.position[0] += xFactor
@@ -154,10 +187,12 @@ class Entity(pygame.sprite.Sprite, Serializable):
         self.spriteIndex = self.walkTick // Constants.WALK_FACTOR
         if self.isLeft[0]:
             window.blit(self.spriteLeft[self.spriteIndex], spriteRect)
-            self.walkTick += self.isLeft[1]
+            if not self.isFrozen:
+                self.walkTick += self.isLeft[1]
         elif self.isRight[0]:
             window.blit(self.spriteRight[self.spriteIndex], spriteRect)
-            self.walkTick += self.isRight[1]
+            if not self.isFrozen:
+                self.walkTick += self.isRight[1]
         else:
             window.blit(self.sprite, spriteRect)
 
@@ -232,4 +267,3 @@ class Entities(Enum):
         for entity in Entities:
             if entity.getType() == type:
                 return entity
-    

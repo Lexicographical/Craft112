@@ -53,10 +53,20 @@ class GameScene(Scene):
     def initPlayer(self):
         self.player = Player(self.world)
         sword = ItemStack(Material.SWORD, 1)
-        pickaxe = ItemStack(Material.PICKAXE, 1)
+        fire_sword = ItemStack(Material.FIRE_SWORD, 1)
+        ice_sword = ItemStack(Material.ICE_SWORD, 1)
 
-        self.player.getInventory().addItem(sword)
-        self.player.getInventory().addItem(pickaxe)
+        pickaxe = ItemStack(Material.PICKAXE, 1)
+        explosive_pickaxe = ItemStack(Material.EXPLOSIVE_PICKAXE, 1)
+
+        inventory = self.player.getInventory()
+
+        inventory.addItem(sword)
+        inventory.addItem(fire_sword)
+        inventory.addItem(ice_sword)
+
+        inventory.addItem(pickaxe)
+        inventory.addItem(explosive_pickaxe)
 
         y = self.world.getHighestBlock(0)
         self.player.position = Vector2D(0, y)
@@ -265,9 +275,9 @@ class GameScene(Scene):
         if self.isPaused: return
         item = self.player.getEquippedItem()
 
-        if item.getType() == Material.PICKAXE:
+        if item.getType() in Tools.tools:
             self.breakBlock(mousePos)
-        elif item.getType() == Material.SWORD:
+        elif item.getType() in Weapons.weapons:
             self.attack(mousePos, item)
 
     def onMouseRightClick(self, mousePos):
@@ -302,8 +312,18 @@ class GameScene(Scene):
     def breakBlock(self, mousePos):
         block, bx, by = self.getBlockFromMousePos(mousePos)
         if block.getType() != Material.AIR:
-            self.world.setBlock(Material.AIR, (bx, by))
+            item = self.player.getEquippedItem()
+            radius = Tools.tools[item.getType()]
+            self.destroyBlock((bx, by))
+            for dx in range(radius):
+                for dy in range(radius):
+                    self.destroyBlock((bx+dx, by+dy))
+
+    def destroyBlock(self, coordinate):
+        block = self.world.getBlock(coordinate)
+        if block.getType() != Material.AIR:
             self.player.getInventory().addItem(ItemStack(block.getType(), 1))
+            self.world.setBlock(Material.AIR, coordinate)
 
     def attack(self, mousePos, item):
         mx = mousePos[0]
@@ -315,9 +335,11 @@ class GameScene(Scene):
         self.player.faceDirection(direction, False)
         self.holdPos = True
 
-        weapon = Tools.tools[item.getType()]
+        weapon = Weapons.weapons[item.getType()]
         damage = weapon.damage
         reach = weapon.reach
+
+        targets = []
 
         for entity in self.world.entities:
             if isinstance(entity, Enemy):
@@ -329,11 +351,21 @@ class GameScene(Scene):
                 relativeDelta = 1 if ex > px else -1
                 distance = pPos.distance(ePos)
                 if relativeDelta == direction and distance <= reach:
-                    entity.damage(damage, relativeDelta)
-                    if not entity.isAlive:
-                        dead.append(entity)
-        for entity in dead:
-            self.world.entities.remove(entity)
+                    knockback = True
+                    status = 0
+                    if weapon.getType() == Material.ICE_SWORD:
+                        knockback = False
+                        status = 1
+                    elif weapon.getType() == Material.FIRE_SWORD:
+                        status = 2
+                    targets.append((entity, damage, relativeDelta, knockback, status))
+
+        for entity, damage, relativeDelta, knockback, status in targets:
+            entity.damage(damage, relativeDelta, knockback)
+            if status == 1:
+                entity.freeze()
+            elif status == 2:
+                entity.burn()
 
     def onMouseScroll(self, scroll):
         player = self.player

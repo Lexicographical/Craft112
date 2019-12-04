@@ -12,6 +12,7 @@ class Enemy(Entity, Serializable):
         self.followThreshold = 20
 
     def ai(self):
+        if self.isFrozen: return
         player = None
         bestDistance = float("inf")
         ePos = self.position
@@ -21,7 +22,8 @@ class Enemy(Entity, Serializable):
                 if dist < bestDistance:
                     bestDistance = dist
                     player = entity
-                    
+        if player is None:
+            return            
         ePos = self.position
         pPos = player.position
         if ePos.distance(pPos) <= self.followThreshold:
@@ -31,7 +33,7 @@ class Enemy(Entity, Serializable):
             collide = not self.move(dx, 0, walk=True)
             if collide:
                 self.jump()
-            if abs(ex-px) < 1:
+            if ePos.distance(pPos) <= 1:
                 player.damage(self.base_damage, dx)
 
     def getSerializables(self):

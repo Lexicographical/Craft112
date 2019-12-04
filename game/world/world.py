@@ -1,4 +1,5 @@
 import random
+import copy
 from noise import snoise2
 from game.world.block import Block
 from game.item.material import Material
@@ -68,8 +69,6 @@ class World(Serializable):
                     blockType = Material.DIRT
                 self.blocks[j][i] = Block(blockType, x, y)
 
-        print("World Size:", len(self.blocks), len(self.blocks[0]))
-
     def indexToCoordinate(self, index):
         i, j = index
         return (i - self.wOffset, j - self.hOffset)
@@ -123,11 +122,16 @@ class World(Serializable):
         if isinstance(entity, Player):
             self.player = entity
 
+    def removeEntity(self, entity):
+        if entity in self.entities:
+            self.entities.remove(entity)
+
     def tick(self):
         self.clockTick += 1
         if self.clockTick % self.spawnTickRate == 0:
             self.rngSpawnEntity(self.player)
-        for entity in self.entities:
+        cpy = copy.copy(self.entities)
+        for entity in cpy:
             entity.update()
             if isinstance(entity, Enemy):
                 entity.ai()

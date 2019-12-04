@@ -9,7 +9,10 @@ class Material(Enum):
     GRASS = 2, False
     DIRT = 3, False
     SWORD = 100, True
-    PICKAXE = 101, True
+    FIRE_SWORD = 101, True
+    ICE_SWORD = 102, True
+    PICKAXE = 200, True
+    EXPLOSIVE_PICKAXE = 201, True
 
     def getId(self):
         return self.value[0]
@@ -36,8 +39,18 @@ class MeleeWeapon:
         self.damage = damage
         self.reach = reach
 
+    def getType(self):
+        return self.material
+
 class Tools:
     tools = {
+        Material.PICKAXE: 0,
+        Material.EXPLOSIVE_PICKAXE: 3
+    }
+
+class Weapons:
+    weapons = {
         Material.SWORD: MeleeWeapon(Material.SWORD, 5, 2),
-        Material.PICKAXE: None
+        Material.FIRE_SWORD: MeleeWeapon(Material.FIRE_SWORD, 7, 3),
+        Material.ICE_SWORD: MeleeWeapon(Material.ICE_SWORD, 6, 3)
     }

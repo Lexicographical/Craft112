@@ -43,7 +43,7 @@ class Assets:
                 id, transparent = material.getValues()
                 img = Assets.loadImage(f"{id}.png", folder="material", transparent=transparent)
 
-                if material in Tools.tools:
+                if material in Tools.tools or material in Weapons.weapons:
                     reflected = pygame.transform.flip(img, 1, 0)
                     assets["textures"][id] = [img, reflected]
                 else:

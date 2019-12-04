@@ -28,3 +28,4 @@ class Constants:
     INVENTORY_HEIGHT = 5
 
     FILTER = None
+    BURN_DAMAGE = 3
