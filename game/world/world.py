@@ -3,7 +3,7 @@ import copy
 from noise import snoise2
 from game.world.block import Block
 from game.item.material import Material
-from game.world.vector2d import Vector2D
+from utility.vector2d import Vector2D
 from utility.constants import Constants
 from game.entity.enemy import Enemy
 from game.entity.entity import *

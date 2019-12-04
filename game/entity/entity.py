@@ -5,7 +5,7 @@ from threading import Timer
 import pygame
 from game.item.material import Material
 from game.serializable import Serializable
-from game.world.vector2d import Vector2D
+from utility.vector2d import Vector2D
 from utility.assets import Assets
 from utility.colors import Colors
 from utility.constants import Constants

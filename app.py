@@ -42,8 +42,7 @@ class App:
 
     def changeScene(self, sceneName):
         self.activeScene = self.scenes[sceneName]
-        if sceneName == "game" and self.activeScene.isPaused:
-            self.activeScene.togglePause()
+        self.activeScene.onLoad()
 
     def onEvent(self, event):
         if event.type == pygame.QUIT:

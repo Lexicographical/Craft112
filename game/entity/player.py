@@ -5,7 +5,7 @@ from game.item.material import *
 from game.item.item import ItemStack
 from game.entity.inventory import Inventory
 from utility.constants import Constants
-from game.world.vector2d import Vector2D
+from utility.vector2d import Vector2D
 
 # Players are controllable entities 
 class Player(Entity):
@@ -33,7 +33,7 @@ class Player(Entity):
         item = self.getEquippedItem()
         material = item.getType()
         id = material.getId()
-        if material in Tools.tools:
+        if material in Tools.tools or material in Weapons.weapons:
             texture, alt = Assets.assets["textures"][id]
         else:
             texture = alt = Assets.assets["textures"][id][1]

@@ -3,6 +3,7 @@ import pygame
 # Stores fonts
 class Fonts:
     Courier = "assets/fonts/courier.ttf"
+    Roboto_Mono = "assets/fonts/roboto_mono.ttf"
     memo = {}
 
     @staticmethod

@@ -8,7 +8,7 @@ from game.entity.enemy import Enemy
 from game.item.item import *
 from game.item.material import *
 from game.world.world import World
-from game.world.vector2d import Vector2D
+from utility.vector2d import Vector2D
 from scenes.scene import Scene
 from utility.assets import Assets
 from utility.colors import Colors
@@ -73,13 +73,12 @@ class GameScene(Scene):
         self.world.addEntity(self.player)
  
     def initComponents(self):
-        textFont = Fonts.getFont(Fonts.Courier, 30)
-        self.label = Label(self.window, 0, 0, text="(0, 0)", font=textFont)
-        rect = self.label.label.get_rect()
-        width, height = rect.width, rect.height
-        self.label.x = self.app.width - width
-        self.label.y = height/2
-        self.label.setEnabled(False)
+        textFont = Fonts.getFont(Fonts.Roboto_Mono, 30)
+        self.label = Label(self.window, self.app.width/2, 5*self.app.height/6,
+                             text="", font=textFont)
+        self.label.x = self.app.width/2
+        self.label.y = 6*self.app.height/7
+
         self.addComponent(self.label)
 
     def initOverlay(self):
@@ -138,21 +137,12 @@ class GameScene(Scene):
     def drawBackground(self):
         window = self.window
         player = self.player
-        bg = Assets.assets["gradient"]
+        bg = Assets.assets["game_background"]
         bgSize = bg.get_size()
         windowSize = window.get_size()
-        coord = [windowSize[i] - bgSize[i] - player.position[i] for i in range(2)]
-        x, y = coord
-        width, height = bgSize
-        window.blit(bg, coord)
-        for dy in [-1, 0, 1]:
-            for dx in [-1, 0, 1]:
-                if (dx != dy) and ((dx == 0) or (dy == 0)):
-                    x += width*dx
-                    y += height*dy
-                    window.blit(bg, (x, y))
-                    x -= width*dx
-                    y -= height*dy
+        x = windowSize[0] - bgSize[0]/2 - player.position[0]
+        y = windowSize[1] - bgSize[1]/2 + player.position[1]
+        window.blit(bg, (x, y))
 
     def drawTerrain(self):
         world = self.world
@@ -185,8 +175,6 @@ class GameScene(Scene):
         window.blit(texture, blockRect)
 
     def drawEntities(self):
-        self.label.setText(str(self.player.getPosition()))
-
         window = self.window
         world = self.world
         px, py = self.player.position
@@ -284,7 +272,9 @@ class GameScene(Scene):
         if self.isPaused: return
         player = self.player
         type = player.getEquippedItem().getType()
-        if type not in Tools.tools and type != Material.AIR:
+        if (type not in Tools.tools and
+            type not in Weapons.weapons and
+            type != Material.AIR):
             _, bx, by = self.getBlockFromMousePos(mousePos)
             world = self.world
             item = player.getEquippedItem()
@@ -372,6 +362,8 @@ class GameScene(Scene):
         inventory = player.getInventory()
         player.equipIndex = (player.equipIndex - scroll) % (inventory.width)
 
+        self.label.setText(player.getEquippedItem().getType().getName())
+
     def onTick(self):
         if self.isPaused: return
         self.world.tick()
@@ -382,6 +374,11 @@ class GameScene(Scene):
                 self.holdPos = False
         if not self.player.isAlive:
             self.isPaused = True
+
+    def onLoad(self):
+        if self.isPaused:
+            self.togglePause()
+        self.onMouseScroll(0)
 
     def drawOverlay(self):
         if Constants.FILTER is None:

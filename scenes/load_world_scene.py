@@ -78,3 +78,7 @@ class LoadWorldScene(Scene):
         Utility.deleteWorld(i+1)
         self.worlds[i] = None
         self.updateButtons()
+
+    def onKeyDown(self, key):
+        if key == pygame.K_ESCAPE:
+            self.app.changeScene("main")

@@ -33,14 +33,15 @@ class Assets:
         assets["background"] = Assets.loadImage("background.png", transparent=False)
         assets["background"] = pygame.transform.scale(assets["background"], (960, 540))
 
-        assets["gradient"] = Assets.loadImage("gradient.png", transparent=False)
-        assets["gradient"] = pygame.transform.scale(assets["gradient"], (960, 540))
+        assets["game_background"] = Assets.loadImage("game_background.png", transparent=False)
+        # assets["gradient"] = pygame.transform.scale(assets["gradient"], (960, 540))
 
         assets["textures"] = {}
 
         for material in Material:
             try:
-                id, transparent = material.getValues()
+                id = material.getId()
+                transparent = material.isTransparent()
                 img = Assets.loadImage(f"{id}.png", folder="material", transparent=transparent)
 
                 if material in Tools.tools or material in Weapons.weapons:

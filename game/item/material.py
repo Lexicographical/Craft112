@@ -2,23 +2,24 @@ from enum import Enum
 
 # Material represents a specific type of item/block
 class Material(Enum):
-    # First value is ID
-    # Second value represents if texture should support transparency
-    AIR = 0, True
-    STONE = 1, False
-    GRASS = 2, False
-    DIRT = 3, False
-    SWORD = 100, True
-    FIRE_SWORD = 101, True
-    ICE_SWORD = 102, True
-    PICKAXE = 200, True
-    EXPLOSIVE_PICKAXE = 201, True
+    AIR = 0, True, ""
+    STONE = 1, False, "Stone"
+    GRASS = 2, False, "Grass"
+    DIRT = 3, False, "Dirt"
+    SWORD = 100, True, "Sword"
+    FIRE_SWORD = 101, True, "Fire Sword"
+    ICE_SWORD = 102, True, "Ice Sword"
+    PICKAXE = 200, True, "Pickaxe"
+    EXPLOSIVE_PICKAXE = 201, True, "Explosive Pickaxe"
 
     def getId(self):
         return self.value[0]
 
     def isTransparent(self):
         return self.value[1]
+
+    def getName(self):
+        return self.value[2]
 
     def getValues(self):
         return self.value

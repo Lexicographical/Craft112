@@ -43,5 +43,5 @@ class Scene:
 
     def onMouseScroll(self, scroll): pass
     def onMouseMove(self, mousePos): pass
-
     def onTick(self): pass
+    def onLoad(self): pass
