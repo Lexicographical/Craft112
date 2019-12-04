@@ -54,6 +54,7 @@ class Assets:
 
         assets["volume_on"] = Assets.loadImage("volume_on.png")
         assets["volume_off"] = Assets.loadImage("volume_off.png")
+        assets["delete"] = Assets.loadImage("delete.png")
 
         Assets.assets = assets
 

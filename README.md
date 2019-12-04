@@ -18,8 +18,8 @@ python app.py
 To measure lines of code, run line_count.sh in a bash shell
 
 # Copyright
-Music: "A Closer Understanding of the Past" from Ori and the Blind Forest Soundtrack
-
-Home Background by Zeyu Ren 任泽宇
-
-Sprites from https://techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation/
+* Music: "A Closer Understanding of the Past" from Ori and the Blind Forest Soundtrack
+* Home Background by Zeyu Ren 任泽宇
+* Character sprites from https://techwithtim.net/tutorials/game-development-with-python/pygame-tutorial/pygame-animation/
+* volume_off and volume_on icons from Google Material Library
+* delete icon made by Kiranshastry from www.flaticon.com

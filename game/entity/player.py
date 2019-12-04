@@ -5,20 +5,15 @@ from game.item.material import *
 from game.item.item import ItemStack
 from game.entity.inventory import Inventory
 from utility.constants import Constants
-from game.world.position import Position
+from game.world.vector2d import Vector2D
 
 # Players are controllable entities 
 class Player(Entity):
     def __init__(self, world):
-        super().__init__(Entities.PLAYER, world, "player", "playerLeft", "playerRight")
+        super().__init__(Entities.PLAYER, world)
         self.inventory = Inventory(Constants.INVENTORY_WIDTH, Constants.INVENTORY_HEIGHT)
         self.equipIndex = 0
 
-    def getSerializables(self):
-        dct = super().getSerializables()
-        dct[self.uuid]["inventory"] = [[item.getSerializables() for item in row] for row in self.inventory]
-        return dct
-    
     def getInventory(self):
         return self.inventory
 
@@ -30,7 +25,7 @@ class Player(Entity):
         self.isAlive = True
 
         y = self.world.getHighestBlock(0)
-        self.position = Position(0, y)
+        self.position = Vector2D(0, y)
         self.world.entities.clear()
         self.world.entities.add(self)
 
@@ -62,3 +57,26 @@ class Player(Entity):
                 window.blit(texture, rect)
         else:
             super().draw(window, x, y)
+
+    def getSerializables(self):
+        dct = super().getSerializables()
+        inv = {
+            "width": self.inventory.width,
+            "height": self.inventory.height,
+            "contents": [[item.getSerializables() for item in row]
+                          for row in self.inventory]
+        }
+        dct[self.uuid]["inventory"] = inv
+        return dct
+
+    @staticmethod
+    def fromJson(json, world):
+        player = Player(world)
+        invJson = json["inventory"]
+        width, height = invJson["width"], invJson["height"]
+        inventory = Inventory(width, height)
+        for i in range(height):
+            for j in range(width):
+                inventory[i][j] = ItemStack.fromJson(invJson["contents"][i][j])
+        player.inventory = inventory
+        return player

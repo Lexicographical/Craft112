@@ -18,8 +18,13 @@ class ItemStack(Serializable):
     def setAmount(self, amount):
         self.amount = amount
 
-    def getSerializable(self):
-        return {
-            "material": self.material,
+    def getSerializables(self):
+        dct = {
+            "material": self.material.getId(),
             "amount": self.amount,
         }
+        return dct
+
+    @staticmethod
+    def fromJson(json):
+        return ItemStack(Material.fromId(json["material"]), json["amount"])

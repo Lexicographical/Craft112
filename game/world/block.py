@@ -1,4 +1,5 @@
 from game.serializable import Serializable
+from game.item.material import Material
 
 # Represents a block in the world at coordinate (x, y) of type `material`
 class Block(Serializable):
@@ -15,8 +16,12 @@ class Block(Serializable):
 
     def getSerializables(self):
         dct = {
+            "material": self.material.getId(),
             "x": self.x,
-            "y": self.y,
-            "material": self.material.getId()
+            "y": self.y
         }
         return dct
+
+    @staticmethod
+    def fromJson(json):
+        return Block(Material.fromId(json["material"]), json["x"], json["y"])

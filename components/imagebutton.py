@@ -10,9 +10,10 @@ class ImageButton(Button):
     def __init__(self, window, x, y, image,
                  width=Constants.DEFAULT_WIDTH,
                  height=Constants.DEFAULT_HEIGHT,
-                 fillColor=None, borderColor=(0, 0, 0),
+                 fillColor=None,
                  borderWidth=1, padding=0):
-        Button.__init__(self, window, x, y, fillColor=fillColor)
+        Button.__init__(self, window, x, y, fillColor=fillColor,
+                borderWidth=borderWidth)
         self.type = "ImageButton"
         self.padding = padding
         self.image = image

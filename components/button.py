@@ -42,3 +42,6 @@ class Button(Clickable, Component):
         self.width, self.height = rect.width, rect.height
         self.width += 2*self.padding
         self.height += 2*self.padding
+
+    def setFillColor(self, fillColor):
+        self.fillColor = fillColor

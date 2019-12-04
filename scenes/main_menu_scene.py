@@ -16,14 +16,14 @@ class MainMenuScene(Scene):
         textFont = Fonts.getFont(Fonts.Courier, 30)
         window = self.window
         height, width = self.app.height, self.app.width
-        title = Label(window, width/2, 0.5*height/3,
+        title = Label(window, width/2, 1*height/3,
                             font=textFont, text="Craft112")
             
         startGame = Button(window, width/2, 1.5*height/3,
                             font=textFont, text="Start Game",
                             padding=10)
-        startGame.setOnClickListener(lambda: self.app.changeScene("game"))
-        
+        startGame.setOnClickListener(lambda: self.app.changeScene("load_game"))
+
         quitGame = Button(window, width/2, 2*height/3,
                             font=textFont, text="Quit Game",
                             padding=10)
@@ -42,10 +42,3 @@ class MainMenuScene(Scene):
 
     def onKeyPress(self, keys, mods):
         super().onKeyPress(keys, mods)
-        if keys[pygame.K_RETURN]:
-            self.app.changeScene("game")
-
-    def onMouseClick(self, mousePos):
-        super().onMouseClick(mousePos)
-
-    def onMouseMove(self, mousePos): pass

@@ -23,6 +23,13 @@ class Material(Enum):
     def __hash__(self):
         return hash(self.getValues())
 
+    @staticmethod
+    def fromId(id):
+        for material in Material:
+            if material.getId() == id:
+                return material
+        return None
+
 class MeleeWeapon:
     def __init__(self, material, damage, reach):
         self.material = material

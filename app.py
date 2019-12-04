@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 from scenes.main_menu_scene import MainMenuScene
 from scenes.game_scene import GameScene
+from scenes.load_world_scene import LoadWorldScene
 from utility.constants import Constants
 from utility.assets import Assets
 from threading import Thread
@@ -35,11 +36,14 @@ class App:
     def initializeScenes(self):
         self.scenes = {
             "main": MainMenuScene(self),
-            "game": GameScene(self)
+            "game": GameScene(self),
+            "load_game": LoadWorldScene(self)
         }
 
     def changeScene(self, sceneName):
         self.activeScene = self.scenes[sceneName]
+        if sceneName == "game" and self.activeScene.isPaused:
+            self.activeScene.togglePause()
 
     def onEvent(self, event):
         if event.type == pygame.QUIT:

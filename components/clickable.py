@@ -13,11 +13,15 @@ class Clickable:
         self.height = height
         self.onClickListener = lambda: print("Clicked")
 
-    def setOnClickListener(self, fn):
+    def setOnClickListener(self, fn, args=None):
         self.onClickListener = fn
+        self.args = args
 
     def click(self):
-        self.onClickListener()
+        if self.args is not None:
+            self.onClickListener(self.args)
+        else:
+            self.onClickListener()
 
     def isClicked(self, mousePos):
         mx, my = mousePos

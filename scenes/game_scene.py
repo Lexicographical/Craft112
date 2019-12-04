@@ -8,7 +8,7 @@ from game.entity.enemy import Enemy
 from game.item.item import *
 from game.item.material import *
 from game.world.world import World
-from game.world.position import Position
+from game.world.vector2d import Vector2D
 from scenes.scene import Scene
 from utility.assets import Assets
 from utility.colors import Colors
@@ -20,17 +20,23 @@ from utility.utility import Utility
 class GameScene(Scene):
     def __init__(self, app):
         super().__init__(app)
+        self.initNew()
         self.initGame()
         self.initComponents()
         self.initOverlay()
 
         self.isPaused = False
 
-    def initGame(self):
-        self.world = World()
-        self.world.generateWorld()
+    def initNew(self):
+        self.initWorld()
         self.initPlayer()
 
+    def initWorld(self):
+        self.world = World()
+        self.world.generateWorld()
+
+    def initGame(self):
+        self.player = None
         self.previewWidth = 10
         Constants.blockSize = self.app.width / (self.previewWidth * 2 + 1)
         self.previewHeight = math.ceil(self.app.height / Constants.blockSize)
@@ -53,7 +59,7 @@ class GameScene(Scene):
         self.player.getInventory().addItem(pickaxe)
 
         y = self.world.getHighestBlock(0)
-        self.player.position = Position(0, y)
+        self.player.position = Vector2D(0, y)
         self.world.addEntity(self.player)
  
     def initComponents(self):
@@ -267,7 +273,8 @@ class GameScene(Scene):
     def onMouseRightClick(self, mousePos):
         if self.isPaused: return
         player = self.player
-        if player.getEquippedItem().getType() not in Tools.tools:
+        type = player.getEquippedItem().getType()
+        if type not in Tools.tools and type != Material.AIR:
             _, bx, by = self.getBlockFromMousePos(mousePos)
             world = self.world
             item = player.getEquippedItem()
@@ -284,8 +291,8 @@ class GameScene(Scene):
         height, width = self.previewHeight, self.previewWidth
         offset = 0.5
 
-        x = rx/size + (abs(px) % 1) - width - offset
-        y = ry/size + (abs(py) % 1) - height + self.renderOffset - offset
+        x = rx/size - width - offset
+        y = ry/size - height + self.renderOffset - offset
 
         bx = px + x
         by = py - y
@@ -294,8 +301,9 @@ class GameScene(Scene):
 
     def breakBlock(self, mousePos):
         block, bx, by = self.getBlockFromMousePos(mousePos)
-        self.world.setBlock(Material.AIR, (bx, by))
-        self.player.getInventory().addItem(ItemStack(block.getType(), 1))
+        if block.getType() != Material.AIR:
+            self.world.setBlock(Material.AIR, (bx, by))
+            self.player.getInventory().addItem(ItemStack(block.getType(), 1))
 
     def attack(self, mousePos, item):
         mx = mousePos[0]
@@ -362,7 +370,7 @@ class GameScene(Scene):
 
     def togglePause(self):
         self.isPaused = not self.isPaused
-        self.world.setDifficulty(self.difficulty)
+        self.difficulty = self.world.difficulty
 
     def toggleVolume(self):
         self.app.volumeOn = not self.app.volumeOn
@@ -379,8 +387,10 @@ class GameScene(Scene):
 
     def cycleDifficulty(self):
         self.difficulty = (self.difficulty + 1) % 4
+        self.world.setDifficulty(self.difficulty)
         self.difficultyButton.setText(f"Difficulty: {self.difficultyLabels[self.difficulty]}")
 
     def quit(self):
         Utility.save(self.world)
+        pygame.event.wait()
         self.app.changeScene("main")

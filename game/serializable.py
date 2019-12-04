@@ -7,8 +7,6 @@ class Serializable:
     @staticmethod
     def serialize(object):
         if isinstance(object, Serializable):
-            # return json.dumps(object.getSerializables())
-
-            return str(object.getSerializables())
+            return json.dumps(object.getSerializables())
         else:
             return json.dumps(object)

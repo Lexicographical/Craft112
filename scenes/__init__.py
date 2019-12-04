@@ -1,1 +1,1 @@
-__all__=["scene", "main_menu", "game_scene"]
+__all__ = ["scene", "main_menu_scene", "game_scene", "load_world_scene"]

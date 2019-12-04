@@ -2,21 +2,25 @@ import random
 from noise import snoise2
 from game.world.block import Block
 from game.item.material import Material
-from game.world.position import Position
+from game.world.vector2d import Vector2D
 from utility.constants import Constants
-from utility.utility import Utility
 from game.entity.enemy import Enemy
 from game.entity.entity import *
 from game.entity.player import Player
 from game.serializable import Serializable
+import sys
+
+if "utility.utility" not in sys.modules:
+    from utility.utility import Utility
 
 # World stores all the in-game information about the current world
-# TODO: do noise generation on your own
 class World(Serializable):
-    def __init__(self, name="world", seed=None):
+    def __init__(self, name="World 1", seed=None):
         self.name = name
         if seed is None:
             self.seed = random.randrange(1, Constants.SEED_MAX)
+        else:
+            self.seed = seed
         self.width = Constants.WORLD_WIDTH
         self.height = Constants.WORLD_HEIGHT
         
@@ -32,17 +36,13 @@ class World(Serializable):
         self.spawnChances = [0, 0.01, 0.05, 0.1]
         self.difficulty = 2
 
-    def getSerializables(self):
-        dct = {
-            "name": self.name,
-            "seed": self.seed,
-            "width": self.width,
-            "height": self.height,
-            "difficulty": self.difficulty,
-            "entities": [entity.getSerializables() for entity in self.entities],
-            "blocks": [[block.getSerializables() for block in row] for row in self.blocks]
-        }
-        return dct
+        self.initBlockMatrix()
+
+    def initBlockMatrix(self):
+        for j in range(self.height):
+            self.blocks.append([])
+            for i in range(self.width):
+                self.blocks[j].append(None)
 
     def generateElevations(self):
         elevation = [0] * self.width
@@ -56,10 +56,6 @@ class World(Serializable):
 
     def generateWorld(self):
         elevation = self.generateElevations()
-        for j in range(self.height):
-            self.blocks.append([])
-            for i in range(self.width):
-                self.blocks[j].append(None)
         for i in range(self.width):
             for j in range(self.height):
                 x, y = self.indexToCoordinate((i, j))
@@ -114,11 +110,11 @@ class World(Serializable):
             offset = chance * 5
             x += sign * (3 + offset)
             y = self.getHighestBlock(x)
-            self.spawnEntity(Position(x, y))
+            self.spawnEntity(Vector2D(x, y))
             
     def spawnEntity(self, position):
-        enemy = Enemy(Entities.ENEMY, self,
-                      "enemy", "enemyLeft", "enemyRight", 1)
+        if self.difficulty == 0: return
+        enemy = Enemy(Entities.ENEMY, self, 1)
         enemy.setPosition(position)
         self.addEntity(enemy)
 
@@ -134,7 +130,7 @@ class World(Serializable):
         for entity in self.entities:
             entity.update()
             if isinstance(entity, Enemy):
-                entity.ai(self.player)
+                entity.ai()
 
     def setDifficulty(self, difficulty):
         self.difficulty = difficulty
@@ -145,3 +141,36 @@ class World(Serializable):
                     ls.append(entity)
             for entity in ls:
                 self.entities.remove(entity)
+    
+    def getSerializables(self):
+
+        dct = {
+            "name": self.name,
+            "seed": self.seed,
+            "width": self.width,
+            "height": self.height,
+            "difficulty": self.difficulty,
+            "blocks": [[block.getSerializables() for block in row] for row in self.blocks]
+        }
+        entities = {}
+        for entity in self.entities:
+            entities.update(entity.getSerializables())
+        dct["entities"] = entities
+        return dct
+
+    @staticmethod
+    def fromJson(json):
+        world = World(name=json["name"], seed=json["seed"])
+        world.width = json["width"]
+        world.height = json["height"]
+        world.difficulty = json["difficulty"]
+        for uuid in json["entities"]:
+            string = json["entities"][uuid]
+            entity = Entity.fromJson(string, uuid, world)
+            world.addEntity(entity)
+        for i in range(world.height):
+            for j in range(world.width):
+                blockJson = json["blocks"][i][j]
+                block = Block.fromJson(blockJson)
+                world.blocks[i][j] = block
+        return world

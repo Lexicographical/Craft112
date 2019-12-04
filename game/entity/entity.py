@@ -6,19 +6,21 @@ from utility.assets import Assets
 import uuid
 import math
 from utility.colors import Colors
-from game.world.position import Position
+from game.world.vector2d import Vector2D
 from game.serializable import Serializable
 
 # Top level class for game entities
 class Entity(pygame.sprite.Sprite, Serializable):
-    def __init__(self, type, world, sprite, spriteLeft, spriteRight):
+    def __init__(self, type, world):
         super().__init__()
         self.type = type
-        self.position = Position(0, 0)
+        self.position = Vector2D(0, 0)
         self.maxHealth = self.type.getMaxHealth()
         self.health = self.maxHealth
         self.isAlive = True
         self.world = world
+
+        sprite, spriteLeft, spriteRight = type.getSpriteLabels()
 
         self.sprite = Assets.assets[sprite]
         self.spriteLeft = Assets.assets[spriteLeft]
@@ -29,23 +31,12 @@ class Entity(pygame.sprite.Sprite, Serializable):
         self.isRight = False, False
         self.isJumping = False
 
-        self.velocity = [0, 0]
+        self.velocity = Vector2D(0, 0)
 
         self.walkTick = 0
         self.spriteIndex = 0
 
         self.uuid = str(uuid.uuid4())
-
-    def getSerializables(self):
-        dct = {
-            self.uuid: {
-                "type": self.type.getType(),
-                "health": self.health,
-                "position": self.position,
-                "velocity": self.velocity
-            }
-        }
-        return dct
 
     def damage(self, dmg, dx):
         self.health -= dmg
@@ -191,13 +182,54 @@ class Entity(pygame.sprite.Sprite, Serializable):
     def __hash__(self):
         return hash(self.uuid)
 
+    def getSerializables(self):
+        dct = {
+            self.uuid: {
+                "type": self.type.getType(),
+                "health": self.health,
+                "position": str(self.position),
+                "velocity": str(self.velocity)
+            }
+        }
+        return dct
+    
+    @staticmethod
+    def fromJson(json, uuid, world):
+        entity = None
+        if json["type"] == "player":
+            from game.entity.player import Player
+            entity = Player.fromJson(json, world)
+        elif json["type"] == "enemy":
+            from game.entity.enemy import Enemy
+            entity = Enemy.fromJson(json, world)
+        else:
+            raise Exception("[Entity::fromJson] Unknown entity type encountered!")
+            
+        if entity is not None:
+            entity.uuid = uuid
+            entity.health = json["health"]
+            entity.position = Vector2D.parse(json["position"])
+            entity.velocity = Vector2D.parse(json["velocity"])
+        
+        return entity
+
 # List of all entity types
 class Entities(Enum):
-    PLAYER = "player", 20
-    ENEMY = "enemy", 20
+    PLAYER = "player", 20, "player", "playerLeft", "playerRight"
+    ENEMY = "enemy", 20, "enemy", "enemyLeft", "enemyRight"
 
     def getType(self):
         return self.value[0]
     
     def getMaxHealth(self):
         return self.value[1]
+
+    def getSpriteLabels(self):
+        return self.value[2:5]
+
+    @staticmethod
+    def fromType(type):
+        for entity in Entities:
+            if entity.getType() == type:
+                return entity
+    
