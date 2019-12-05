@@ -13,3 +13,4 @@ noise, pygame
 * Shortcuts
 ctrl+q to force quit
 escape to go back or pause
+in the game, press c to spawn an enemy (if difficulty is not set to peaceful)
