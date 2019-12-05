@@ -227,6 +227,23 @@ class GameScene(Scene):
                                 color=Colors.BLACK)
             countLabel.draw()
   
+    def drawOverlay(self):
+        if Constants.FILTER is None:
+            Constants.FILTER = pygame.Surface((self.app.width, self.app.height))
+            Constants.FILTER.set_alpha(100)
+            Constants.FILTER.fill((255, 255, 255))
+
+        for component in self.overlayComponents:
+            enabled = not self.player.isAlive or self.isPaused
+            component.setEnabled(enabled)
+
+        if not self.player.isAlive:
+            self.window.blit(Constants.FILTER, (0, 0))
+            self.resumeButton.setEnabled(False)
+        elif self.isPaused:
+            self.window.blit(Constants.FILTER, (0, 0))
+            self.respawnButton.setEnabled(False)
+
     def onKeyPress(self, keys, mods):
         super().onKeyPress(keys, mods)
         if self.isPaused: return
@@ -283,6 +300,29 @@ class GameScene(Scene):
             if item.getAmount() == 0:
                 item.material = Material.AIR
                 item.amount = 1
+
+    def onMouseScroll(self, scroll):
+        player = self.player
+        inventory = player.getInventory()
+        player.equipIndex = (player.equipIndex - scroll) % (inventory.width)
+
+        self.label.setText(player.getEquippedItem().getType().getName())
+
+    def onTick(self):
+        if self.isPaused: return
+        self.world.tick()
+        if self.holdPos:
+            self.holdPosTick += 1
+            if self.holdPosTick == self.holdPosTickThresh:
+                self.holdPosTick = 0
+                self.holdPos = False
+        if not self.player.isAlive:
+            self.isPaused = True
+
+    def onLoad(self):
+        if self.isPaused:
+            self.togglePause()
+        self.onMouseScroll(0)
 
     def getBlockFromMousePos(self, mousePos):
         rx, ry = mousePos
@@ -357,46 +397,6 @@ class GameScene(Scene):
             elif status == 2:
                 entity.burn()
 
-    def onMouseScroll(self, scroll):
-        player = self.player
-        inventory = player.getInventory()
-        player.equipIndex = (player.equipIndex - scroll) % (inventory.width)
-
-        self.label.setText(player.getEquippedItem().getType().getName())
-
-    def onTick(self):
-        if self.isPaused: return
-        self.world.tick()
-        if self.holdPos:
-            self.holdPosTick += 1
-            if self.holdPosTick == self.holdPosTickThresh:
-                self.holdPosTick = 0
-                self.holdPos = False
-        if not self.player.isAlive:
-            self.isPaused = True
-
-    def onLoad(self):
-        if self.isPaused:
-            self.togglePause()
-        self.onMouseScroll(0)
-
-    def drawOverlay(self):
-        if Constants.FILTER is None:
-            Constants.FILTER = pygame.Surface((self.app.width, self.app.height))
-            Constants.FILTER.set_alpha(100)
-            Constants.FILTER.fill((255, 255, 255))
-
-        for component in self.overlayComponents:
-            enabled = not self.player.isAlive or self.isPaused
-            component.setEnabled(enabled)
-
-        if not self.player.isAlive:
-            self.window.blit(Constants.FILTER, (0, 0))
-            self.resumeButton.setEnabled(False)
-        elif self.isPaused:
-            self.window.blit(Constants.FILTER, (0, 0))
-            self.respawnButton.setEnabled(False)
-
     def togglePause(self):
         self.isPaused = not self.isPaused
         self.difficulty = self.world.difficulty
@@ -404,20 +404,20 @@ class GameScene(Scene):
     def toggleVolume(self):
         self.app.volumeOn = not self.app.volumeOn
         if self.app.volumeOn:
-            self.volume.setImage(Assets.assets["volume_on"])
+            self.volumeButton.setImage(Assets.assets["volume_on"])
             self.app.musicChannel.set_volume(1)
         else:
-            self.volume.setImage(Assets.assets["volume_off"])
+            self.volumeButton.setImage(Assets.assets["volume_off"])
             self.app.musicChannel.set_volume(0)
-
-    def respawnPlayer(self):
-        self.player.respawn()
-        self.isPaused = False
 
     def cycleDifficulty(self):
         self.difficulty = (self.difficulty + 1) % 4
         self.world.setDifficulty(self.difficulty)
         self.difficultyButton.setText(f"Difficulty: {self.difficultyLabels[self.difficulty]}")
+
+    def respawnPlayer(self):
+        self.player.respawn()
+        self.isPaused = False
 
     def quit(self):
         Utility.save(self.world)
