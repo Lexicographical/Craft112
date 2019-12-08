@@ -1,1 +1,1 @@
-__all__=["component", "button", "label"]
+__all__=["component", "button", "label", "clickable", "imagebutton"]

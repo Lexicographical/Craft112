@@ -116,10 +116,12 @@ class Entity(pygame.sprite.Sprite, Serializable):
         self.velocity[1] += Constants.GRAVITY*2
         self.isJumping = True
 
+    # make the entity fall and/or update position based on current position and velocity
     def update(self):
         self.fall()
         self.updatePosition()
 
+    # update position of the entity based on the current velocity
     def updatePosition(self):
         world = self.world
         for axis in range(len(self.velocity)):
@@ -147,6 +149,7 @@ class Entity(pygame.sprite.Sprite, Serializable):
                 if block.getType() != Material.AIR:
                     self.position[axis] += 1
 
+    # shift the position of entity by sign in the direction of the axis
     def shift(self, axis, sign):
         self.position[axis] += sign
         x, y = self.position
@@ -158,6 +161,7 @@ class Entity(pygame.sprite.Sprite, Serializable):
             if axis == 1:
                 self.isJumping = False
     
+    # drop the entity if the block below is air (simulate gravity)
     def fall(self):
         x, y = self.position
         world = self.world

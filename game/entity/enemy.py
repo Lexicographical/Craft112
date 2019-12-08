@@ -11,6 +11,9 @@ class Enemy(Entity, Serializable):
         self.base_speed = 0.25
         self.followThreshold = 20
 
+    # Perform the AI for enemies if they are not frozen
+    # Looks for the closest player and follows it
+    # if it encounters a block, jump over it
     def ai(self):
         if self.isFrozen: return
         player = None

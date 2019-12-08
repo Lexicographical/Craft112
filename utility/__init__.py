@@ -1,1 +1,1 @@
-__all__=["colors", "constants", "fonts"]
+__all__=["assets", "colors", "constants", "fonts", "utility", "vector2d"]

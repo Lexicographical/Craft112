@@ -323,6 +323,7 @@ class GameScene(Scene):
         if self.isPaused:
             self.togglePause()
         self.onMouseScroll(0)
+        self.difficulty = self.world.difficulty
 
     def getBlockFromMousePos(self, mousePos):
         rx, ry = mousePos

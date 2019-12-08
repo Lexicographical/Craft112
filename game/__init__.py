@@ -1,1 +1,1 @@
-__all__ = ["entity", "world", "item"]
+__all__ = ["entity", "world", "item", "serializable"]

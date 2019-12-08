@@ -4,8 +4,7 @@ from components.label import Label
 from components.button import Button
 from utility.constants import Constants
 
-# Button UI component
-
+# Button that supports images
 class ImageButton(Button):
     def __init__(self, window, x, y, image,
                  width=Constants.DEFAULT_WIDTH,

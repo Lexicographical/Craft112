@@ -45,6 +45,9 @@ class World(Serializable):
             for i in range(self.width):
                 self.blocks[j].append(None)
 
+    # uses simplex noise to generate smooth random values between 0-1
+    # generates noise with octaves 4 and 16 to generate large and small terrain details
+    # superimposes the noise and normalizes it to the base height
     def generateElevations(self):
         elevation = [0] * self.width
         base = self.height / 4
@@ -55,6 +58,10 @@ class World(Serializable):
             elevation[i] *= base
         return elevation
 
+    # any values below elevation[i] are non-air
+    # top blocks are grass
+    # anything under is dirt
+    # 5 blocks below is stone
     def generateWorld(self):
         elevation = self.generateElevations()
         for i in range(self.width):
@@ -99,6 +106,7 @@ class World(Serializable):
         _, y = self.indexToCoordinate((0, self.height))
         return y
 
+    # spawn an entity if random number is less than spawn chance (based on world difficulty)
     def rngSpawnEntity(self, player, spawn=False):
         chance = random.random()
         if spawn or (len(self.entities) <= 3 and chance < self.spawnChances[self.difficulty]):
